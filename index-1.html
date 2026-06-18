@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+  <meta name="theme-color" content="#5C3D00"/>
+  <meta name="mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+  <meta name="apple-mobile-web-app-title" content="Cúng Dường"/>
+  <link rel="manifest" href="manifest.json"/>
+  <link rel="apple-touch-icon" href="icon-192.png"/>
+  <title>Cúng Dường</title>
+  <style>
+    *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+    html,body{margin:0;padding:0;background:#FFF8E7;font-family:-apple-system,'Segoe UI',Arial,sans-serif;}
+    input,button,select{font-family:inherit;}
+    #root{padding-bottom:env(safe-area-inset-bottom,0px);padding-top:env(safe-area-inset-top,0px);}
+  </style>
+</head>
+<body>
+<div id="root"></div>
+
+<script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<script type="text/babel">
+const { useState, useEffect } = React;
+
+
+// ─── Lotus SVG ───────────────────────────────────────────────────────────────
+const LotusIcon = ({ size = 24, color = "#8B6914" }) => (
+  <svg width={size} height={size} viewBox="0 0 40 40" fill="none">
+    <ellipse cx="20" cy="26" rx="6" ry="10" fill={color} opacity="0.18"/>
+    <ellipse cx="11" cy="23" rx="6" ry="9" transform="rotate(-30 11 23)" fill={color} opacity="0.18"/>
+    <ellipse cx="29" cy="23" rx="6" ry="9" transform="rotate(30 29 23)" fill={color} opacity="0.18"/>
+    <ellipse cx="6"  cy="19" rx="5" ry="8" transform="rotate(-55 6 19)"  fill={color} opacity="0.12"/>
+    <ellipse cx="34" cy="19" rx="5" ry="8" transform="rotate(55 34 19)"  fill={color} opacity="0.12"/>
+    <ellipse cx="20" cy="26" rx="5" ry="9" fill={color} opacity="0.35"/>
+    <ellipse cx="12" cy="24" rx="4.5" ry="8" transform="rotate(-28 12 24)" fill={color} opacity="0.3"/>
+    <ellipse cx="28" cy="24" rx="4.5" ry="8" transform="rotate(28 28 24)"  fill={color} opacity="0.3"/>
+    <ellipse cx="20" cy="32" rx="4" ry="2" fill={color} opacity="0.4"/>
+    <line x1="20" y1="32" x2="20" y2="38" stroke={color} strokeWidth="1.5" opacity="0.5"/>
+  </svg>
+);
+
+// ─── Bar Chart ────────────────────────────────────────────────────────────────
+const BarChart = ({ values, onBarClick }) => {
+  const max = Math.max(...values, 1);
+  const H = 150;
+  return (
+    <div style={{ padding: "14px 16px 8px", background: "#FFFBF0", borderRadius: 12, border: "1px solid #E8D8A0", margin: "12px 16px" }}>
+      <div style={{ fontSize: 10, color: "#8B6914", fontWeight: 700, letterSpacing: "0.08em", marginBottom: 10, textTransform: "uppercase" }}>Biểu đồ cúng dường hàng tháng</div>
+      <div style={{ display: "flex", alignItems: "flex-end", gap: 3, height: H }}>
+        {values.map((v, i) => {
+          const bh = v > 0 ? Math.max(6, Math.round((v / max) * (H - 28))) : 0;
+          const isMax = v === max && v > 0;
+          return (
+            <div key={i} onClick={() => v > 0 && onBarClick(i)}
+              style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", cursor: v > 0 ? "pointer" : "default" }}>
+              {v > 0 && (
+                <div style={{ fontSize: 7, color: "#8B6914", fontWeight: 700, textAlign: "center", marginBottom: 2, lineHeight: 1.2 }}>
+                  {v >= 1000000 ? (v/1000000).toFixed(1)+"M" : v >= 1000 ? Math.round(v/1000)+"K" : v}
+                </div>
+              )}
+              <div style={{ width: "100%", height: bh, background: isMax ? "linear-gradient(180deg,#5C3D00,#8B6914)" : "linear-gradient(180deg,#C8A84B,#EDD98A)", borderRadius: "3px 3px 0 0", minHeight: v > 0 ? 4 : 0 }} />
+              <div style={{ fontSize: 7, color: "#A0805A", fontWeight: 600, marginTop: 3 }}>T{i+1}</div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+};
+
+// ─── Constants ────────────────────────────────────────────────────────────────
+const MONTHS = ["Tháng 1","Tháng 2","Tháng 3","Tháng 4","Tháng 5","Tháng 6",
+                "Tháng 7","Tháng 8","Tháng 9","Tháng 10","Tháng 11","Tháng 12"];
+
+
+const STORAGE_KEY  = "cd_data_v2";
+const CATEGORY_KEY = "cd_cats_v1";
+const THIEN_KEY    = "cd_thien_v2";
+const SLOTS        = [0, 1, 2]; // 3 slots per day
+
+const DEFAULT_CATEGORIES = [
+  { id: "y-phuc",    name: "Y phuc",    nameVN: "Y phục",     icon: "🧥" },
+  { id: "vat-thuc",  name: "Vat thuc",  nameVN: "Vật thực",   icon: "🍚" },
+  { id: "sang-toa",  name: "Sang toa",  nameVN: "Sàng tọa",   icon: "🛏️" },
+  { id: "duoc-pham", name: "Duoc pham", nameVN: "Dược phẩm",  icon: "💊" },
+];
+
+const ICON_OPTIONS = ["🌸","🕯️","📿","🏮","🌿","🍃","💐","🪷","🫙","📦","🏗️","🎁","🛕","📚","🌾","💧","🧧","🎋","🪔","⛩️"];
+
+const getDaysInMonth = (y, m) => new Date(y, m + 1, 0).getDate();
+const fmtVND = (n) => (!n || isNaN(n)) ? "" : Number(n).toLocaleString("vi-VN") + " đ";
+const parseAmt = (s) => parseInt(String(s || "").replace(/[^\d]/g, "")) || 0;
+const load = (key, def) => { try { const r = localStorage.getItem(key); return r ? JSON.parse(r) : def; } catch { return def; } };
+const save = (key, val) => { try { localStorage.setItem(key, JSON.stringify(val)); } catch {} };
+
+const lbl = { display: "block", fontSize: 10, color: "#8B6914", fontWeight: 700, marginBottom: 3, textTransform: "uppercase", letterSpacing: "0.04em" };
+const inp = { width: "100%", padding: "6px 9px", border: "1px solid #D4B85A", borderRadius: 6, background: "#FFFBF0", color: "#2C1A00", fontSize: 12, outline: "none", boxSizing: "border-box" };
+const navBtn = { background: "#EDD98A", border: "none", borderRadius: 8, width: 36, height: 36, fontSize: 20, cursor: "pointer", color: "#5C3D00", fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center" };
+
+// ─── Single Slot ──────────────────────────────────────────────────────────────
+const SlotForm = ({ slotIdx, slot, onChange, categories, onClassify }) => {
+  const hasData = !!(slot.amount || slot.place || slot.note);
+  const canClassify = parseAmt(slot.amount) > 0;
+  const cat = categories.find(c => c.id === slot.catId);
+
+  const slotColors = ["#FFF8E7", "#F5F0FF", "#F0FFF5"];
+  const slotBorders = ["#D4B85A", "#C4B0E0", "#90CBA0"];
+
+  return (
+    <div style={{ background: slotColors[slotIdx], border: `1px solid ${slotBorders[slotIdx]}`, borderRadius: 10, padding: "10px 12px", marginBottom: 8 }}>
+      {/* Slot header */}
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+          <span style={{ width: 20, height: 20, borderRadius: "50%", background: "#8B6914", color: "#FFF8E7", fontSize: 10, fontWeight: 800, display: "flex", alignItems: "center", justifyContent: "center" }}>{slotIdx + 1}</span>
+          {cat && <span style={{ fontSize: 13 }}>{cat.icon}</span>}
+          {cat && <span style={{ fontSize: 11, color: "#5C3D00", fontWeight: 700 }}>{cat.nameVN || cat.name}</span>}
+          {!cat && hasData && <span style={{ fontSize: 10, color: "#C8A84B" }}>chưa phân loại</span>}
+        </div>
+        {hasData && <span style={{ fontSize: 13, fontWeight: 800, color: "#5C3D00" }}>{fmtVND(slot.amount)}</span>}
+      </div>
+
+      {/* Fields */}
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 8 }}>
+        <div>
+          <label style={lbl}>Số tiền (đ)</label>
+          <input type="text" inputMode="numeric" placeholder="0"
+            value={slot.amount || ""}
+            onChange={e => onChange({ ...slot, amount: e.target.value })}
+            style={inp} />
+        </div>
+        <div>
+          <label style={lbl}>Địa điểm</label>
+          <input type="text" placeholder="Chùa, tu viện..."
+            value={slot.place || ""}
+            onChange={e => onChange({ ...slot, place: e.target.value })}
+            style={inp} />
+        </div>
+        <div style={{ gridColumn: "1/-1" }}>
+          <label style={lbl}>Nội dung</label>
+          <input type="text" placeholder="Dâng vật thực, thuốc men..."
+            value={slot.note || ""}
+            onChange={e => onChange({ ...slot, note: e.target.value })}
+            style={{ ...inp, width: "100%" }} />
+        </div>
+      </div>
+
+      {/* Category buttons */}
+      {canClassify && (
+        <div>
+          <div style={{ fontSize: 9, color: "#8B6914", fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", marginBottom: 5 }}>Phân loại thiện pháp:</div>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 5 }}>
+            {categories.map(c => {
+              const sel = slot.catId === c.id;
+              return (
+                <button key={c.id} onClick={() => onClassify(c.id)}
+                  style={{ padding: "4px 9px", borderRadius: 16, border: "none", cursor: "pointer", background: sel ? "#5C3D00" : "#EDD98A", color: sel ? "#FFF8E7" : "#5C3D00", fontSize: 11, fontWeight: 700, display: "flex", alignItems: "center", gap: 3, transition: "all 0.15s" }}>
+                  <span>{c.icon}</span>
+                  <span>{c.nameVN || c.name}</span>
+                  {sel && <span>✓</span>}
+                </button>
+              );
+            })}
+            {slot.catId && (
+              <button onClick={() => onChange({ ...slot, catId: null })}
+                style={{ padding: "4px 8px", borderRadius: 16, border: "1px dashed #D4B85A", cursor: "pointer", background: "transparent", color: "#A0805A", fontSize: 10 }}>
+                bỏ
+              </button>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+// ─── Day Row ──────────────────────────────────────────────────────────────────
+const DayRow = ({ day, dayData, onChange, categories, onClassify }) => {
+  const totalAmt = SLOTS.reduce((s, i) => s + parseAmt(dayData[i]?.amount), 0);
+  const hasAny = totalAmt > 0;
+  const [open, setOpen] = useState(hasAny);
+
+  return (
+    <div style={{ borderBottom: "1px solid #E8D8A0", background: hasAny ? "#FFFBEE" : "transparent" }}>
+      {/* Day header */}
+      <div onClick={() => setOpen(o => !o)}
+        style={{ display: "flex", alignItems: "center", gap: 10, padding: "9px 14px", cursor: "pointer", userSelect: "none" }}>
+        <span style={{
+          minWidth: 28, height: 28, borderRadius: "50%", flexShrink: 0,
+          background: hasAny ? "#8B6914" : "#EDD98A",
+          color: hasAny ? "#FFF8E7" : "#5C3D00",
+          display: "flex", alignItems: "center", justifyContent: "center",
+          fontSize: 13, fontWeight: 700,
+        }}>{day}</span>
+
+        {hasAny ? (
+          <div style={{ flex: 1 }}>
+            <span style={{ fontSize: 13, fontWeight: 800, color: "#5C3D00" }}>{fmtVND(totalAmt)}</span>
+            <span style={{ marginLeft: 8, fontSize: 11, color: "#A0805A" }}>
+              {SLOTS.filter(i => parseAmt(dayData[i]?.amount) > 0).map(i => {
+                const c = categories.find(ct => ct.id === dayData[i]?.catId);
+                return c ? c.icon : null;
+              }).filter(Boolean).join(" ")}
+            </span>
+          </div>
+        ) : (
+          <span style={{ flex: 1, fontSize: 12, color: "#C8A84B" }}>chưa ghi</span>
+        )}
+        <span style={{ color: "#C8A84B", fontSize: 11 }}>{open ? "▲" : "▼"}</span>
+      </div>
+
+      {/* 3 Slots */}
+      {open && (
+        <div style={{ padding: "4px 14px 12px 52px" }}>
+          {SLOTS.map(si => (
+            <SlotForm
+              key={si}
+              slotIdx={si}
+              slot={dayData[si] || {}}
+              onChange={slot => onChange(si, slot)}
+              categories={categories}
+              onClassify={catId => onClassify(si, catId)}
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
+// ─── Monthly Card ─────────────────────────────────────────────────────────────
+const MonthCard = ({ monthIdx, monthData, onClick }) => {
+  const total = Object.values(monthData || {}).reduce((s, day) => {
+    if (typeof day === "object" && !day.amount) {
+      return s + SLOTS.reduce((ss, i) => ss + parseAmt(day[i]?.amount), 0);
+    }
+    return s + parseAmt(day?.amount);
+  }, 0);
+  const count = Object.keys(monthData || {}).filter(d => {
+    const day = monthData[d];
+    return SLOTS.some(i => parseAmt(day[i]?.amount) > 0);
+  }).length;
+  return (
+    <div onClick={onClick}
+      style={{ background: total > 0 ? "linear-gradient(135deg,#FFF8E7,#FDF0C0)" : "#FAF7EF", border: `1px solid ${total > 0 ? "#D4B85A" : "#E8D8A0"}`, borderRadius: 12, padding: "14px 16px", cursor: "pointer", boxShadow: total > 0 ? "0 2px 8px rgba(139,105,20,0.12)" : "none", transition: "transform 0.1s" }}
+      onMouseEnter={e => e.currentTarget.style.transform = "translateY(-2px)"}
+      onMouseLeave={e => e.currentTarget.style.transform = "none"}>
+      <div style={{ fontSize: 12, color: "#8B6914", fontWeight: 700, marginBottom: 2 }}>{MONTHS[monthIdx]}</div>
+      <div style={{ fontSize: 20, fontWeight: 800, color: total > 0 ? "#5C3D00" : "#C8A84B", fontFamily: "Georgia,serif" }}>{total > 0 ? fmtVND(total) : "—"}</div>
+      {count > 0 && <div style={{ fontSize: 10, color: "#A0805A", marginTop: 4 }}>{count} ngày</div>}
+    </div>
+  );
+};
+
+// ─── Thien Phap Tab ───────────────────────────────────────────────────────────
+const ThienPhapTab = ({ categories, setCategories, thienData, setThienData }) => {
+  const now = new Date();
+  const [viewYear, setViewYear] = useState(now.getFullYear());
+  const [addingCat, setAddingCat] = useState(false);
+  const [newName, setNewName] = useState("");
+  const [newIcon, setNewIcon] = useState("🌸");
+  const [expanded, setExpanded] = useState(null);
+  const [editMon, setEditMon] = useState(null);
+
+  const getE = (catId, mIdx) => thienData[catId]?.[`${viewYear}-${String(mIdx+1).padStart(2,"0")}`] || {};
+  const setE = (catId, mIdx, e) => {
+    const k = `${viewYear}-${String(mIdx+1).padStart(2,"0")}`;
+    setThienData(prev => ({ ...prev, [catId]: { ...(prev[catId]||{}), [k]: e } }));
+  };
+  const catYr  = (id) => Array.from({length:12},(_,i)=>parseAmt(getE(id,i).amount)).reduce((a,b)=>a+b,0);
+  const catAll = (id) => Object.values(thienData[id]||{}).reduce((s,e)=>s+parseAmt(e?.amount),0);
+  const grandYr  = categories.reduce((s,c)=>s+catYr(c.id),0);
+  const grandAll = categories.reduce((s,c)=>s+catAll(c.id),0);
+
+  return (
+    <div style={{ maxWidth: 600, margin: "0 auto", paddingBottom: 60 }}>
+      <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", padding:"14px 18px 10px", borderBottom:"1px solid #E8D8A0" }}>
+        <button onClick={()=>setViewYear(y=>y-1)} style={navBtn}>&#8249;</button>
+        <div style={{ textAlign:"center" }}>
+          <div style={{ fontSize:17, fontWeight:800, color:"#5C3D00", fontFamily:"Georgia,serif" }}>Thiện Pháp — Năm {viewYear}</div>
+          {grandYr>0 && <div style={{ fontSize:12, color:"#8B6914", marginTop:2 }}>Tổng năm: <strong>{fmtVND(grandYr)}</strong></div>}
+        </div>
+        <button onClick={()=>setViewYear(y=>y+1)} style={navBtn}>&#8250;</button>
+      </div>
+
+      {grandAll > 0 && (
+        <div style={{ margin:"14px 16px 4px", background:"linear-gradient(135deg,#5C3D00,#8B6914)", borderRadius:12, padding:"14px 18px", display:"flex", alignItems:"center", gap:14, boxShadow:"0 4px 16px rgba(92,61,0,0.25)" }}>
+          <LotusIcon size={34} color="#EDD98A"/>
+          <div>
+            <div style={{ fontSize:10, color:"#EDD98A", letterSpacing:"0.1em", fontWeight:700, marginBottom:2 }}>TỔNG CỘNG DỒN TẤT CẢ THIỆN PHÁP</div>
+            <div style={{ fontSize:26, fontWeight:800, color:"#FFF8E7", fontFamily:"Georgia,serif" }}>{fmtVND(grandAll)}</div>
+            {grandYr < grandAll && <div style={{ fontSize:11, color:"#EDD98A", opacity:0.8, marginTop:2 }}>Năm {viewYear}: {fmtVND(grandYr)}</div>}
+          </div>
+        </div>
+      )}
+
+      <div style={{ padding:"12px 16px 0" }}>
+        {categories.map(cat => {
+          const yt = catYr(cat.id), at = catAll(cat.id), isExp = expanded === cat.id;
+          return (
+            <div key={cat.id} style={{ marginBottom:10, borderRadius:12, border:"1px solid #D4B85A", overflow:"hidden", background:"#FFFBF0" }}>
+              <div onClick={()=>setExpanded(isExp?null:cat.id)}
+                style={{ display:"flex", alignItems:"center", gap:10, padding:"12px 14px", cursor:"pointer", background:isExp?"#FDF0C0":"#FFFBF0", userSelect:"none" }}>
+                <span style={{ fontSize:22 }}>{cat.icon}</span>
+                <div style={{ flex:1 }}>
+                  <div style={{ fontSize:15, fontWeight:700, color:"#5C3D00" }}>{cat.nameVN || cat.name}</div>
+                  <div style={{ fontSize:11, color:"#A0805A", marginTop:2 }}>
+                    Năm {viewYear}: <strong style={{ color: yt>0?"#8B6914":"#C8A84B" }}>{yt>0?fmtVND(yt):"—"}</strong>
+                    {at>yt&&at>0 && <span style={{ marginLeft:10, color:"#C8A84B" }}>· Cộng dồn: <strong style={{ color:"#A0805A" }}>{fmtVND(at)}</strong></span>}
+                  </div>
+                </div>
+                <span style={{ fontSize:12, color:"#C8A84B", marginRight:4 }}>{isExp?"▲":"▼"}</span>
+                <button onClick={e=>{e.stopPropagation(); if(window.confirm("Xóa ["+cat.name+"]?")) setCategories(p=>p.filter(c=>c.id!==cat.id));}}
+                  style={{ background:"none", border:"none", cursor:"pointer", color:"#C8A84B", fontSize:14, padding:"2px 4px" }}>x</button>
+              </div>
+              {isExp && (
+                <div style={{ borderTop:"1px solid #E8D8A0" }}>
+                  {Array.from({length:12},(_,i)=>{
+                    const e=getE(cat.id,i), isEd=editMon?.catId===cat.id&&editMon?.monthIdx===i, hv=!!e.amount;
+                    return (
+                      <div key={i} style={{ borderBottom:"1px solid #F0E4B0", background:hv?"#FFFBEE":"transparent" }}>
+                        <div onClick={()=>setEditMon(isEd?null:{catId:cat.id,monthIdx:i})}
+                          style={{ display:"flex", alignItems:"center", gap:10, padding:"8px 14px", cursor:"pointer", userSelect:"none" }}>
+                          <span style={{ minWidth:72, fontSize:12, fontWeight:600, color:hv?"#5C3D00":"#A0805A", flexShrink:0 }}>{MONTHS[i]}</span>
+                          <span style={{ flex:1, fontSize:13, color:hv?"#8B6914":"#C8A84B", fontWeight:hv?700:400 }}>{hv?fmtVND(e.amount):"—"}</span>
+                          {e.note && <span style={{ fontSize:11, color:"#A0805A", fontStyle:"italic", maxWidth:110, overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{e.note}</span>}
+                          <span style={{ fontSize:11, color:"#C8A84B" }}>{isEd?"▲":"✎"}</span>
+                        </div>
+                        {isEd && (
+                          <div style={{ padding:"10px 14px 14px 86px", display:"grid", gridTemplateColumns:"1fr 1fr", gap:10, background:"#FFFDF5" }}>
+                            <div><label style={lbl}>Số tiền</label><input type="text" inputMode="numeric" value={e.amount||""} onChange={ev=>setE(cat.id,i,{...e,amount:ev.target.value})} style={inp}/></div>
+                            <div><label style={lbl}>Ghi chú</label><input type="text" value={e.note||""} onChange={ev=>setE(cat.id,i,{...e,note:ev.target.value})} style={inp}/></div>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                  <div style={{ background:"#FDF0C0", borderTop:"1px solid #E8D8A0", padding:"10px 14px" }}>
+                    <div style={{ display:"flex", justifyContent:"space-between" }}>
+                      <span style={{ fontSize:12, fontWeight:700, color:"#5C3D00" }}>Tổng năm {viewYear}</span>
+                      <span style={{ fontSize:16, fontWeight:800, color:"#8B6914", fontFamily:"Georgia,serif" }}>{yt>0?fmtVND(yt):"—"}</span>
+                    </div>
+                    {at>0 && <div style={{ display:"flex", justifyContent:"space-between", marginTop:4 }}>
+                      <span style={{ fontSize:11, color:"#8B6914" }}>Cộng dồn tất cả</span>
+                      <span style={{ fontSize:13, fontWeight:700, color:"#5C3D00" }}>{fmtVND(at)}</span>
+                    </div>}
+                  </div>
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+
+      <div style={{ margin:"8px 16px 0" }}>
+        {!addingCat ? (
+          <button onClick={()=>setAddingCat(true)} style={{ width:"100%", padding:14, background:"transparent", border:"2px dashed #D4B85A", borderRadius:12, color:"#8B6914", fontSize:14, cursor:"pointer", fontWeight:700 }}>
+            + Thêm đầu mục thiện pháp
+          </button>
+        ) : (
+          <div style={{ background:"#FFFBF0", border:"1px solid #D4B85A", borderRadius:12, padding:16 }}>
+            <div style={{ fontSize:13, fontWeight:700, color:"#5C3D00", marginBottom:10 }}>Đầu mục mới</div>
+            <div style={{ marginBottom:10 }}><label style={lbl}>Tên</label><input type="text" value={newName} onChange={e=>setNewName(e.target.value)} placeholder="VD: Pháp phục..." style={inp}/></div>
+            <div style={{ marginBottom:12 }}>
+              <label style={lbl}>Biểu tượng</label>
+              <div style={{ display:"flex", flexWrap:"wrap", gap:5 }}>
+                {ICON_OPTIONS.map(ic=>(
+                  <button key={ic} onClick={()=>setNewIcon(ic)} style={{ fontSize:18, padding:"4px 7px", borderRadius:7, border:newIcon===ic?"2px solid #8B6914":"1px solid #E8D8A0", background:newIcon===ic?"#FDF0C0":"transparent", cursor:"pointer" }}>{ic}</button>
+                ))}
+              </div>
+            </div>
+            <div style={{ display:"flex", gap:10 }}>
+              <button onClick={()=>{ if(!newName.trim()) return; const id="cat-"+Date.now(); setCategories(p=>[...p,{id,name:newName.trim(),nameVN:newName.trim(),icon:newIcon}]); setNewName(""); setNewIcon("🌸"); setAddingCat(false); }} style={{ flex:1, padding:10, background:"#8B6914", color:"#FFF8E7", border:"none", borderRadius:8, fontSize:13, fontWeight:700, cursor:"pointer" }}>Thêm</button>
+              <button onClick={()=>{setAddingCat(false);setNewName("");}} style={{ flex:1, padding:10, background:"#EDD98A", color:"#5C3D00", border:"none", borderRadius:8, fontSize:13, fontWeight:700, cursor:"pointer" }}>Huỷ</button>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+// ─── Main ─────────────────────────────────────────────────────────────────────
+function CungDuong() {
+  const now = new Date();
+  const [tab, setTab]         = useState("thien");
+  const [year, setYear]       = useState(now.getFullYear());
+  const [month, setMonth]     = useState(now.getMonth());
+  const [data, setData]       = useState(()=>load(STORAGE_KEY,{}));
+  const [cats, setCats]       = useState(()=>load(CATEGORY_KEY,DEFAULT_CATEGORIES));
+  const [thien, setThien]     = useState(()=>load(THIEN_KEY,{}));
+  const [flash, setFlash]     = useState(null);
+
+  useEffect(()=>save(STORAGE_KEY,data),[data]);
+  useEffect(()=>save(CATEGORY_KEY,cats),[cats]);
+  useEffect(()=>save(THIEN_KEY,thien),[thien]);
+
+  const mKey = `${year}-${String(month+1).padStart(2,"0")}`;
+  const mData = data[mKey] || {};
+  const daysInM = getDaysInMonth(year, month);
+
+  // day total: sum all 3 slots
+  const dayTotal = (dayData) => SLOTS.reduce((s,i)=>s+parseAmt(dayData?.[i]?.amount),0);
+
+  const monthTotal = Object.keys(mData).reduce((s,d)=>s+dayTotal(mData[d]),0);
+  const monthCount = Object.keys(mData).filter(d=>dayTotal(mData[d])>0).length;
+
+  const yearValues = Array.from({length:12},(_,i)=>{
+    const k=`${year}-${String(i+1).padStart(2,"0")}`;
+    return Object.keys(data[k]||{}).reduce((s,d)=>s+dayTotal(data[k][d]),0);
+  });
+  const yearTotal = yearValues.reduce((a,b)=>a+b,0);
+
+  // Grand all-time total across ALL data
+  const grandAllTime = Object.keys(data).reduce((s,mk)=>{
+    return s + Object.keys(data[mk]).reduce((ss,d)=>ss+dayTotal(data[mk][d]),0);
+  },0);
+
+  const setDaySlot = (day, slotIdx, slot) => {
+    setData(prev => ({
+      ...prev,
+      [mKey]: {
+        ...(prev[mKey]||{}),
+        [day]: { ...(prev[mKey]?.[day]||{}), [slotIdx]: slot }
+      }
+    }));
+  };
+
+  // Classify: when user picks a category for a slot
+  const handleClassify = (day, slotIdx, catId) => {
+    const slot = mData[day]?.[slotIdx] || {};
+    const amount = parseAmt(slot.amount);
+    if (!amount) return;
+    const prevCatId = slot.catId;
+    const thienKey = mKey;
+
+    // Remove from old cat
+    if (prevCatId && prevCatId !== catId) {
+      setThien(prev => {
+        const old = parseAmt(prev[prevCatId]?.[thienKey]?.amount);
+        const newA = Math.max(0, old - amount);
+        return { ...prev, [prevCatId]: { ...(prev[prevCatId]||{}), [thienKey]: { ...prev[prevCatId]?.[thienKey], amount: String(newA) } } };
+      });
+    }
+    // Toggle off
+    if (prevCatId === catId) {
+      setDaySlot(day, slotIdx, { ...slot, catId: null });
+      setThien(prev => {
+        const old = parseAmt(prev[catId]?.[thienKey]?.amount);
+        const newA = Math.max(0, old - amount);
+        return { ...prev, [catId]: { ...(prev[catId]||{}), [thienKey]: { ...prev[catId]?.[thienKey], amount: String(newA) } } };
+      });
+      return;
+    }
+    // Add to new cat
+    setDaySlot(day, slotIdx, { ...slot, catId });
+    setThien(prev => {
+      const old = parseAmt(prev[catId]?.[thienKey]?.amount);
+      const newA = old + amount;
+      return { ...prev, [catId]: { ...(prev[catId]||{}), [thienKey]: { ...prev[catId]?.[thienKey], amount: String(newA) } } };
+    });
+
+    const cat = cats.find(c=>c.id===catId);
+    setFlash({ name: cat?.nameVN || cat?.name, icon: cat?.icon });
+    setTimeout(()=>{ setFlash(null); setTab("thien"); }, 900);
+  };
+
+  // Summary: total per category this month
+  const monthCatSummary = () => {
+    const map = {};
+    Object.values(mData).forEach(dayD => {
+      SLOTS.forEach(si => {
+        const slot = dayD?.[si];
+        if (slot?.catId && slot?.amount) {
+          map[slot.catId] = (map[slot.catId]||0) + parseAmt(slot.amount);
+        }
+      });
+    });
+    return map;
+  };
+
+  const TABS = [["thien","🌸 Thiện Pháp"],["month","📅 Tháng"],["year","📊 Năm"]];
+
+  const resetAll = () => {
+    ['cd_data_v2','cd_cats_v1','cd_thien_v2','cung_duong_data_v1','cung_duong_cats_v1','cung_duong_thien_v1'].forEach(k=>localStorage.removeItem(k));
+    setData({});
+    setCats(DEFAULT_CATEGORIES);
+    setThien({});
+  };
+
+  return (
+    <div style={{ minHeight:"100vh", background:"linear-gradient(160deg,#FFF8E7,#FDF3C8 50%,#FAF0DC)", fontFamily:"'Segoe UI','Arial',sans-serif", color:"#2C1A00" }}>
+
+      {/* Header */}
+      <div style={{ background:"linear-gradient(135deg,#5C3D00,#8B6914 60%,#A07828)", padding:"18px 20px 14px", textAlign:"center", boxShadow:"0 4px 16px rgba(92,61,0,0.3)" }}>
+        <div style={{ display:"flex", justifyContent:"center", alignItems:"center", gap:10, marginBottom:3 }}>
+          <LotusIcon size={26} color="#EDD98A"/>
+          <h1 style={{ margin:0, fontSize:24, fontWeight:800, color:"#FFF8E7", fontFamily:"Georgia,serif", letterSpacing:"0.08em" }}>CÚNG DƯỜNG</h1>
+          <LotusIcon size={26} color="#EDD98A"/>
+        </div>
+        <div style={{ fontSize:11, color:"#EDD98A", letterSpacing:"0.12em", opacity:0.85 }}>Theo dõi thiện pháp — Phước báu tăng trưởng</div>
+        <button onClick={resetAll} style={{ marginTop:8, padding:"4px 14px", background:"transparent", border:"1px solid rgba(255,255,255,0.3)", borderRadius:20, color:"#EDD98A", fontSize:10, cursor:"pointer", opacity:0.7 }}>
+          🗑 Xóa dữ liệu cũ
+        </button>
+        {grandAllTime > 0 && (
+          <div style={{ marginTop:8, fontSize:12, color:"#FFF8E7", opacity:0.9 }}>
+            Tổng tất cả: <strong style={{ fontSize:14 }}>{fmtVND(grandAllTime)}</strong>
+          </div>
+        )}
+      </div>
+
+      {/* Flash */}
+      {flash && (
+        <div style={{ position:"fixed", top:"50%", left:"50%", transform:"translate(-50%,-50%)", zIndex:999, background:"linear-gradient(135deg,#5C3D00,#8B6914)", color:"#FFF8E7", borderRadius:16, padding:"20px 32px", textAlign:"center", boxShadow:"0 8px 32px rgba(0,0,0,0.3)", pointerEvents:"none" }}>
+          <div style={{ fontSize:36, marginBottom:8 }}>{flash.icon}</div>
+          <div style={{ fontSize:13, fontWeight:700 }}>Da phan loai:</div>
+          <div style={{ fontSize:18, fontWeight:800, marginTop:4 }}>{flash.name}</div>
+        </div>
+      )}
+
+      {/* Tabs */}
+      <div style={{ display:"flex", background:"#5C3D00", borderBottom:"2px solid #8B6914" }}>
+        {TABS.map(([key,label])=>(
+          <button key={key} onClick={()=>setTab(key)} style={{ flex:1, padding:"11px 0", background:tab===key?"#8B6914":"transparent", color:tab===key?"#FFF8E7":"#C8A84B", border:"none", cursor:"pointer", fontSize:12, fontWeight:700, borderBottom:tab===key?"2px solid #EDD98A":"2px solid transparent", marginBottom:-2 }}>{label}</button>
+        ))}
+      </div>
+
+      {/* ── Month Tab ── */}
+      {tab === "month" && (
+        <div style={{ maxWidth:600, margin:"0 auto", paddingBottom:40 }}>
+          {/* Nav */}
+          <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", padding:"14px 18px 10px", borderBottom:"1px solid #E8D8A0" }}>
+            <button onClick={()=>{ if(month===0){setMonth(11);setYear(y=>y-1);}else setMonth(m=>m-1); }} style={navBtn}>&#8249;</button>
+            <div style={{ textAlign:"center" }}>
+              <div style={{ fontSize:18, fontWeight:800, color:"#5C3D00", fontFamily:"Georgia,serif" }}>{MONTHS[month]} {year}</div>
+              {monthTotal>0 && <div style={{ fontSize:12, color:"#8B6914", marginTop:2 }}>Tổng: <strong>{fmtVND(monthTotal)}</strong> · {monthCount} ngày</div>}
+            </div>
+            <button onClick={()=>{ if(month===11){setMonth(0);setYear(y=>y+1);}else setMonth(m=>m+1); }} style={navBtn}>&#8250;</button>
+          </div>
+
+          {/* Days */}
+          {Array.from({length:daysInM},(_,i)=>i+1).map(day=>(
+            <DayRow
+              key={day}
+              day={day}
+              dayData={mData[day]||{}}
+              onChange={(si,slot)=>setDaySlot(day,si,slot)}
+              categories={cats}
+              onClassify={(si,catId)=>handleClassify(day,si,catId)}
+            />
+          ))}
+
+          {/* Month summary */}
+          {monthTotal > 0 && (
+            <div style={{ margin:"20px 16px 0", background:"linear-gradient(135deg,#FDF0C0,#FAE89A)", border:"1px solid #C8A84B", borderRadius:12, padding:"16px 18px", boxShadow:"0 2px 10px rgba(139,105,20,0.15)" }}>
+              <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:10 }}>
+                <LotusIcon size={18} color="#8B6914"/>
+                <span style={{ fontSize:12, fontWeight:700, color:"#5C3D00", letterSpacing:"0.05em" }}>TỔNG KẾT {MONTHS[month].toUpperCase()} {year}</span>
+              </div>
+              <div style={{ fontSize:26, fontWeight:800, color:"#5C3D00", fontFamily:"Georgia,serif" }}>{fmtVND(monthTotal)}</div>
+              <div style={{ fontSize:11, color:"#8B6914", marginTop:5 }}>{monthCount} ngày cúng dường trong tháng</div>
+
+              {/* Breakdown by category */}
+              {(() => {
+                const catMap = monthCatSummary();
+                const entries = Object.entries(catMap).filter(([,v])=>v>0);
+                if (!entries.length) return null;
+                return (
+                  <div style={{ marginTop:12, borderTop:"1px solid #D4B85A", paddingTop:12 }}>
+                    <div style={{ fontSize:10, color:"#8B6914", fontWeight:700, marginBottom:8, textTransform:"uppercase", letterSpacing:"0.05em" }}>Tổng hợp thiện pháp tháng này</div>
+                    {entries.map(([catId, amt])=>{
+                      const cat = cats.find(c=>c.id===catId);
+                      return (
+                        <div key={catId} style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:6 }}>
+                          <span style={{ display:"flex", alignItems:"center", gap:6, fontSize:13 }}>
+                            <span>{cat?.icon}</span>
+                            <span style={{ color:"#5C3D00", fontWeight:600 }}>{cat?.nameVN||cat?.name}</span>
+                          </span>
+                          <span style={{ fontSize:14, fontWeight:800, color:"#8B6914" }}>{fmtVND(amt)}</span>
+                        </div>
+                      );
+                    })}
+                    <div style={{ borderTop:"1px solid #C8A84B", marginTop:8, paddingTop:8, display:"flex", justifyContent:"space-between" }}>
+                      <span style={{ fontSize:12, fontWeight:700, color:"#5C3D00" }}>Tổng cúng dường tháng</span>
+                      <span style={{ fontSize:16, fontWeight:800, color:"#5C3D00", fontFamily:"Georgia,serif" }}>{fmtVND(monthTotal)}</span>
+                    </div>
+                  </div>
+                );
+              })()}
+
+              {/* Grand all-time */}
+              <div style={{ marginTop:10, borderTop:"1px solid #D4B85A", paddingTop:10, display:"flex", justifyContent:"space-between", alignItems:"center" }}>
+                <span style={{ fontSize:11, color:"#8B6914" }}>Tổng tất cả từ trước đến nay</span>
+                <span style={{ fontSize:15, fontWeight:800, color:"#5C3D00", fontFamily:"Georgia,serif" }}>{fmtVND(grandAllTime)}</span>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ── Year Tab ── */}
+      {tab === "year" && (
+        <div style={{ maxWidth:600, margin:"0 auto", paddingBottom:40 }}>
+          <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", padding:"14px 18px 10px", borderBottom:"1px solid #E8D8A0" }}>
+            <button onClick={()=>setYear(y=>y-1)} style={navBtn}>&#8249;</button>
+            <div style={{ textAlign:"center" }}>
+              <div style={{ fontSize:20, fontWeight:800, color:"#5C3D00", fontFamily:"Georgia,serif" }}>Năm {year}</div>
+              {yearTotal>0 && <div style={{ fontSize:13, color:"#8B6914", marginTop:2 }}>Tổng năm: <strong>{fmtVND(yearTotal)}</strong></div>}
+            </div>
+            <button onClick={()=>setYear(y=>y+1)} style={navBtn}>&#8250;</button>
+          </div>
+          {yearTotal > 0 && (
+            <div style={{ margin:"16px 16px 8px", background:"linear-gradient(135deg,#5C3D00,#8B6914)", borderRadius:12, padding:"16px 20px", display:"flex", alignItems:"center", gap:14, boxShadow:"0 4px 16px rgba(92,61,0,0.25)" }}>
+              <LotusIcon size={36} color="#EDD98A"/>
+              <div>
+                <div style={{ fontSize:11, color:"#EDD98A", letterSpacing:"0.1em", fontWeight:700 }}>TỔNG CÚNG DƯỜNG NĂM {year}</div>
+                <div style={{ fontSize:28, fontWeight:800, color:"#FFF8E7", fontFamily:"Georgia,serif", marginTop:2 }}>{fmtVND(yearTotal)}</div>
+              </div>
+            </div>
+          )}
+          <BarChart values={yearValues} onBarClick={i=>{setMonth(i);setTab("month");}}/>
+          <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:10, padding:"8px 16px" }}>
+            {Array.from({length:12},(_,i)=>{
+              const k=`${year}-${String(i+1).padStart(2,"0")}`;
+              return <MonthCard key={i} monthIdx={i} monthData={data[k]} onClick={()=>{setMonth(i);setTab("month");}}/>;
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* ── Thien Phap Tab ── */}
+      {tab === "thien" && (
+        <ThienPhapTab categories={cats} setCategories={setCats} thienData={thien} setThienData={setThien}/>
+      )}
+    </div>
+  );
+}
+
+
+ReactDOM.createRoot(document.getElementById("root")).render(React.createElement(CungDuong));
+</script>
+
+<script>
+if("serviceWorker" in navigator){
+  window.addEventListener("load",()=>{
+    navigator.serviceWorker.register("sw.js").catch(()=>{});
+  });
+}
+</script>
+</body>
+</html>
