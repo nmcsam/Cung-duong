@@ -1,0 +1,16 @@
+{
+  "name": "Cúng Dường",
+  "short_name": "Cúng Dường",
+  "description": "Theo dõi thiện pháp - Phước báu tăng trưởng",
+  "start_url": "/Cung-duong/",
+  "scope": "/Cung-duong/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#FFF8E7",
+  "theme_color": "#5C3D00",
+  "lang": "vi",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}
