@@ -1,0 +1,1079 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+<meta name="theme-color" content="#5C3D00"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="Cúng Dường"/>
+<link rel="manifest" href="manifest.json"/>
+<title>Cúng Dường</title>
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;margin:0;padding:0;}
+body{font-family:-apple-system,'Segoe UI',Arial,sans-serif;background:#FFF8E7;color:#2C1A00;min-height:100vh;}
+button,input{font-family:inherit;}
+input{padding:7px 10px;border:1px solid #D4B85A;border-radius:6px;background:#FFFBF0;color:#2C1A00;font-size:13px;outline:none;width:100%;}
+.page{display:none;max-width:600px;margin:0 auto;padding-bottom:60px;}
+.page.active{display:block;}
+
+/* Header */
+#header{background:linear-gradient(135deg,#5C3D00,#8B6914 60%,#A07828);padding:16px 20px 12px;text-align:center;box-shadow:0 4px 16px rgba(92,61,0,0.3);}
+#header h1{font-size:22px;font-weight:800;color:#FFF8E7;font-family:Georgia,serif;letter-spacing:.08em;}
+#header .sub{font-size:11px;color:#EDD98A;letter-spacing:.1em;margin-top:3px;opacity:.85;}
+#grand-total{font-size:12px;color:#FFF8E7;margin-top:6px;opacity:.9;}
+#btn-reset{margin-top:8px;padding:3px 14px;background:transparent;border:1px solid rgba(255,255,255,.3);border-radius:20px;color:#EDD98A;font-size:10px;cursor:pointer;opacity:.7;}
+
+/* Tabs */
+#tabs{display:flex;background:#5C3D00;border-bottom:2px solid #8B6914;}
+#tabs button{flex:1;padding:11px 0;background:transparent;color:#C8A84B;border:none;cursor:pointer;font-size:12px;font-weight:700;border-bottom:2px solid transparent;margin-bottom:-2px;}
+#tabs button.active{background:#8B6914;color:#FFF8E7;border-bottom:2px solid #EDD98A;}
+
+/* Nav */
+.nav-row{display:flex;align-items:center;justify-content:space-between;padding:13px 18px 10px;border-bottom:1px solid #E8D8A0;}
+.nav-title{text-align:center;}
+.nav-title h2{font-size:18px;font-weight:800;color:#5C3D00;font-family:Georgia,serif;}
+.nav-title .sub{font-size:12px;color:#8B6914;margin-top:2px;}
+.nav-btn{background:#EDD98A;border:none;border-radius:8px;width:36px;height:36px;font-size:20px;cursor:pointer;color:#5C3D00;font-weight:700;}
+
+/* Day row */
+.day-row{border-bottom:1px solid #E8D8A0;}
+.day-head{display:flex;align-items:center;gap:10px;padding:9px 14px;cursor:pointer;user-select:none;}
+.day-num{min-width:28px;height:28px;border-radius:50%;background:#EDD98A;color:#5C3D00;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0;}
+.day-num.has{background:#8B6914;color:#FFF8E7;}
+.day-info{flex:1;font-size:13px;font-weight:800;color:#5C3D00;}
+.day-empty{flex:1;font-size:12px;color:#C8A84B;}
+.day-icons{font-size:11px;color:#A0805A;margin-left:6px;}
+.day-arrow{color:#C8A84B;font-size:11px;}
+.day-slots{padding:4px 14px 12px 52px;display:none;}
+.day-slots.open{display:block;}
+
+/* Slot */
+.slot{border-radius:10px;padding:10px 12px;margin-bottom:8px;}
+.slot-0{background:#FFF8E7;border:1px solid #D4B85A;}
+.slot-1{background:#F5F0FF;border:1px solid #C4B0E0;}
+.slot-2{background:#F0FFF5;border:1px solid #90CBA0;}
+.slot-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
+.slot-badge{width:20px;height:20px;border-radius:50%;background:#8B6914;color:#FFF8E7;font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center;}
+.slot-cat{display:flex;align-items:center;gap:5px;font-size:11px;color:#5C3D00;font-weight:700;}
+.slot-amt{font-size:13px;font-weight:800;color:#5C3D00;}
+.slot-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;}
+.slot-full{grid-column:1/-1;}
+.lbl{display:block;font-size:10px;color:#8B6914;font-weight:700;margin-bottom:3px;text-transform:uppercase;letter-spacing:.04em;}
+.cat-btns{margin-top:4px;}
+.cat-lbl{font-size:9px;color:#8B6914;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:5px;}
+.cat-row{display:flex;flex-wrap:wrap;gap:5px;}
+.cat-btn{padding:4px 9px;border-radius:16px;border:none;cursor:pointer;background:#EDD98A;color:#5C3D00;font-size:11px;font-weight:700;display:flex;align-items:center;gap:3px;}
+.cat-btn.sel{background:#5C3D00;color:#FFF8E7;}
+.cat-clear{padding:4px 8px;border-radius:16px;border:1px dashed #D4B85A;cursor:pointer;background:transparent;color:#A0805A;font-size:10px;}
+
+/* Summary box */
+.summary-box{margin:20px 16px 0;background:linear-gradient(135deg,#FDF0C0,#FAE89A);border:1px solid #C8A84B;border-radius:12px;padding:16px 18px;}
+.summary-title{display:flex;align-items:center;gap:8px;margin-bottom:10px;font-size:12px;font-weight:700;color:#5C3D00;letter-spacing:.05em;}
+.summary-total{font-size:26px;font-weight:800;color:#5C3D00;font-family:Georgia,serif;}
+.summary-count{font-size:11px;color:#8B6914;margin-top:5px;}
+.summary-sec{margin-top:12px;border-top:1px solid #D4B85A;padding-top:12px;}
+.summary-sec-title{font-size:10px;color:#8B6914;font-weight:700;margin-bottom:8px;text-transform:uppercase;letter-spacing:.05em;}
+.summary-cat-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;}
+.summary-cat-name{display:flex;align-items:center;gap:6px;font-size:13px;color:#5C3D00;font-weight:600;}
+.summary-cat-amt{font-size:14px;font-weight:800;color:#8B6914;}
+.summary-total-row{border-top:1px solid #C8A84B;margin-top:8px;padding-top:8px;display:flex;justify-content:space-between;font-size:12px;font-weight:700;color:#5C3D00;}
+.summary-alltime{margin-top:10px;border-top:1px solid #D4B85A;padding-top:10px;display:flex;justify-content:space-between;align-items:center;}
+.summary-alltime span:first-child{font-size:11px;color:#8B6914;}
+.summary-alltime span:last-child{font-size:15px;font-weight:800;color:#5C3D00;font-family:Georgia,serif;}
+
+/* Year grid */
+.year-banner{margin:16px 16px 8px;background:linear-gradient(135deg,#5C3D00,#8B6914);border-radius:12px;padding:16px 20px;display:flex;align-items:center;gap:14px;box-shadow:0 4px 16px rgba(92,61,0,.25);}
+.year-banner-text .label{font-size:11px;color:#EDD98A;letter-spacing:.1em;font-weight:700;}
+.year-banner-text .val{font-size:28px;font-weight:800;color:#FFF8E7;font-family:Georgia,serif;margin-top:2px;}
+.month-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:8px 16px;}
+.month-card{border-radius:12px;padding:14px 16px;cursor:pointer;transition:transform .1s;}
+.month-card:hover{transform:translateY(-2px);}
+.month-card .m-name{font-size:12px;color:#8B6914;font-weight:700;margin-bottom:2px;}
+.month-card .m-val{font-size:20px;font-weight:800;font-family:Georgia,serif;}
+.month-card .m-days{font-size:10px;color:#A0805A;margin-top:4px;}
+
+/* Bar chart */
+.chart-wrap{padding:14px 16px 8px;background:#FFFBF0;border-radius:12px;border:1px solid #E8D8A0;margin:12px 16px;}
+.chart-title{font-size:10px;color:#8B6914;font-weight:700;letter-spacing:.08em;margin-bottom:10px;text-transform:uppercase;}
+.bars{display:flex;align-items:flex-end;gap:3px;height:150px;}
+.bar-wrap{flex:1;display:flex;flex-direction:column;align-items:center;cursor:pointer;}
+.bar-label{font-size:7px;color:#8B6914;font-weight:700;margin-bottom:2px;text-align:center;line-height:1.2;}
+.bar{width:100%;border-radius:3px 3px 0 0;}
+.bar-x{font-size:7px;color:#A0805A;font-weight:600;margin-top:3px;}
+
+/* Thien phap */
+.thien-banner{margin:14px 16px 4px;background:linear-gradient(135deg,#5C3D00,#8B6914);border-radius:12px;padding:14px 18px;display:flex;align-items:center;gap:14px;box-shadow:0 4px 16px rgba(92,61,0,.25);}
+.thien-cats{padding:12px 16px 0;}
+.cat-card{margin-bottom:10px;border-radius:12px;border:1px solid #D4B85A;overflow:hidden;background:#FFFBF0;}
+.cat-card-head{display:flex;align-items:center;gap:10px;padding:12px 14px;cursor:pointer;user-select:none;}
+.cat-card-head.open{background:#FDF0C0;}
+.cat-icon{font-size:22px;}
+.cat-info{flex:1;}
+.cat-name{font-size:15px;font-weight:700;color:#5C3D00;}
+.cat-sub{font-size:11px;color:#A0805A;margin-top:2px;}
+.cat-body{border-top:1px solid #E8D8A0;display:none;}
+.cat-body.open{display:block;}
+.mon-row{border-bottom:1px solid #F0E4B0;display:flex;align-items:center;gap:10px;padding:8px 14px;cursor:pointer;user-select:none;}
+.mon-name{min-width:72px;font-size:12px;font-weight:600;color:#A0805A;flex-shrink:0;}
+.mon-name.has{color:#5C3D00;}
+.mon-val{flex:1;font-size:13px;color:#C8A84B;}
+.mon-val.has{color:#8B6914;font-weight:700;}
+.mon-note{font-size:11px;color:#A0805A;font-style:italic;max-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.mon-edit{display:none;padding:10px 14px 14px 86px;background:#FFFDF5;grid-template-columns:1fr 1fr;gap:10px;}
+.mon-edit.open{display:grid;}
+.cat-footer{background:#FDF0C0;border-top:1px solid #E8D8A0;padding:10px 14px;}
+.cat-footer-row{display:flex;justify-content:space-between;align-items:center;}
+.add-cat-btn{width:100%;padding:14px;background:transparent;border:2px dashed #D4B85A;border-radius:12px;color:#8B6914;font-size:14px;cursor:pointer;font-weight:700;margin-top:8px;}
+.add-cat-form{background:#FFFBF0;border:1px solid #D4B85A;border-radius:12px;padding:16px;margin-top:8px;}
+.icon-grid{display:flex;flex-wrap:wrap;gap:5px;margin-top:4px;}
+.icon-btn{font-size:18px;padding:4px 7px;border-radius:7px;border:1px solid #E8D8A0;background:transparent;cursor:pointer;}
+.icon-btn.sel{border:2px solid #8B6914;background:#FDF0C0;}
+.form-btns{display:flex;gap:10px;margin-top:12px;}
+.btn-add{flex:1;padding:10px;background:#8B6914;color:#FFF8E7;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;}
+.btn-cancel{flex:1;padding:10px;background:#EDD98A;color:#5C3D00;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;}
+
+/* Flash */
+#flash{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:999;background:linear-gradient(135deg,#5C3D00,#8B6914);color:#FFF8E7;border-radius:16px;padding:20px 32px;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,.3);display:none;pointer-events:none;}
+#flash .f-icon{font-size:36px;margin-bottom:8px;}
+#flash .f-label{font-size:13px;font-weight:700;}
+#flash .f-name{font-size:18px;font-weight:800;margin-top:4px;}
+
+/* Stacked bar chart */
+.thien-chart{padding:14px 16px 8px;background:#FFFBF0;border-radius:12px;border:1px solid #E8D8A0;margin:12px 16px;}
+.thien-chart-title{font-size:10px;color:#8B6914;font-weight:700;letter-spacing:.08em;margin-bottom:8px;text-transform:uppercase;}
+.thien-chart-legend{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;}
+.legend-item{display:flex;align-items:center;gap:4px;font-size:10px;color:#5C3D00;}
+.legend-dot{width:10px;height:10px;border-radius:2px;flex-shrink:0;}
+.thien-bars{display:flex;align-items:flex-end;gap:3px;height:140px;}
+.thien-bar-wrap{flex:1;display:flex;flex-direction:column;align-items:center;cursor:pointer;}
+.thien-bar-stack{width:100%;display:flex;flex-direction:column-reverse;border-radius:3px 3px 0 0;overflow:hidden;}
+.thien-bar-seg{width:100%;}
+.thien-bar-total{font-size:7px;color:#8B6914;font-weight:700;text-align:center;margin-bottom:2px;line-height:1.2;}
+.thien-bar-x{font-size:7px;color:#A0805A;font-weight:600;margin-top:3px;}
+</style>
+</head>
+<body>
+
+
+<div id="debug" style="position:fixed;top:0;left:0;right:0;background:red;color:white;font-size:12px;padding:8px;z-index:9999;display:none;word-break:break-all;"></div>
+<script>
+window.onerror = function(msg, src, line, col, err) {
+  var d = document.getElementById('debug');
+  d.style.display = 'block';
+  d.textContent = 'LỖI: ' + msg + ' (dòng ' + line + ')';
+  return false;
+};
+</script>
+<div id="header">
+  <div style="display:flex;justify-content:center;align-items:center;gap:10px;margin-bottom:3px;">
+    <svg width="26" height="26" viewBox="0 0 40 40" fill="none"><ellipse cx="20" cy="26" rx="6" ry="10" fill="#EDD98A" opacity=".4"/><ellipse cx="11" cy="23" rx="6" ry="9" transform="rotate(-30 11 23)" fill="#EDD98A" opacity=".4"/><ellipse cx="29" cy="23" rx="6" ry="9" transform="rotate(30 29 23)" fill="#EDD98A" opacity=".4"/><ellipse cx="20" cy="26" rx="5" ry="9" fill="#EDD98A" opacity=".7"/><ellipse cx="12" cy="24" rx="4.5" ry="8" transform="rotate(-28 12 24)" fill="#EDD98A" opacity=".6"/><ellipse cx="28" cy="24" rx="4.5" ry="8" transform="rotate(28 28 24)" fill="#EDD98A" opacity=".6"/></svg>
+    <h1>CÚNG DƯỜNG</h1>
+    <svg width="26" height="26" viewBox="0 0 40 40" fill="none"><ellipse cx="20" cy="26" rx="6" ry="10" fill="#EDD98A" opacity=".4"/><ellipse cx="11" cy="23" rx="6" ry="9" transform="rotate(-30 11 23)" fill="#EDD98A" opacity=".4"/><ellipse cx="29" cy="23" rx="6" ry="9" transform="rotate(30 29 23)" fill="#EDD98A" opacity=".4"/><ellipse cx="20" cy="26" rx="5" ry="9" fill="#EDD98A" opacity=".7"/><ellipse cx="12" cy="24" rx="4.5" ry="8" transform="rotate(-28 12 24)" fill="#EDD98A" opacity=".6"/><ellipse cx="28" cy="24" rx="4.5" ry="8" transform="rotate(28 28 24)" fill="#EDD98A" opacity=".6"/></svg>
+  </div>
+  <div class="sub">Theo dõi thiện pháp — Phước báu tăng trưởng</div>
+  <div id="grand-total"></div>
+  <div style="display:flex;justify-content:center;gap:8px;margin-top:6px;">
+    <button onclick="syncData()" style="padding:4px 14px;background:#8B6914;border:none;border-radius:20px;color:#FFF8E7;font-size:11px;font-weight:700;cursor:pointer;">🔄 Đồng bộ</button>
+    <button id="btn-reset" onclick="resetAll()" style="padding:4px 14px;background:transparent;border:1px solid rgba(255,255,255,.3);border-radius:20px;color:#EDD98A;font-size:10px;cursor:pointer;opacity:.7;">🗑 Xóa dữ liệu cũ</button>
+  </div>
+</div>
+
+<div id="tabs">
+  <button onclick="showTab('thien')" id="tab-thien">🌸 Thiện Pháp</button>
+  <button onclick="showTab('month')" id="tab-month">📅 Tháng</button>
+  <button onclick="showTab('year')" id="tab-year">📊 Năm</button>
+</div>
+
+<div id="flash">
+  <div class="f-icon" id="f-icon"></div>
+  <div class="f-label">Đã phân loại:</div>
+  <div class="f-name" id="f-name"></div>
+</div>
+
+<!-- MONTH TAB -->
+<div id="page-month" class="page">
+  <!-- Month picker -->
+  <div style="padding:10px 12px 6px;border-bottom:1px solid #E8D8A0;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+      <button class="nav-btn" onclick="changeYear(-1);renderMonthPicker()" style="width:30px;height:30px;font-size:16px;">‹</button>
+      <span id="year-picker-label" style="font-size:16px;font-weight:800;color:#5C3D00;font-family:Georgia,serif;"></span>
+      <button class="nav-btn" onclick="changeYear(1);renderMonthPicker()" style="width:30px;height:30px;font-size:16px;">›</button>
+    </div>
+    <div id="month-picker" style="display:grid;grid-template-columns:repeat(4,1fr);gap:5px;"></div>
+    <div class="sub" id="month-sub" style="text-align:center;margin-top:6px;"></div>
+  </div>
+  <div id="day-list"></div>
+  <div id="month-summary"></div>
+</div>
+
+<!-- YEAR TAB -->
+<div id="page-year" class="page">
+  <div class="nav-row">
+    <button class="nav-btn" onclick="changeYear(-1);renderYear()">‹</button>
+    <div class="nav-title">
+      <h2 id="year-title"></h2>
+      <div class="sub" id="year-sub"></div>
+    </div>
+    <button class="nav-btn" onclick="changeYear(1);renderYear()">›</button>
+  </div>
+  <div id="year-banner"></div>
+  <div class="chart-wrap">
+    <div class="chart-title">Biểu đồ cúng dường hàng tháng</div>
+    <div class="bars" id="bar-chart"></div>
+  </div>
+  <div class="month-grid" id="month-grid"></div>
+</div>
+
+<!-- THIEN PHAP TAB -->
+<div id="page-thien" class="page">
+  <div class="nav-row">
+    <button class="nav-btn" onclick="changeThienYear(-1)">‹</button>
+    <div class="nav-title">
+      <h2 id="thien-title"></h2>
+      <div class="sub" id="thien-sub"></div>
+    </div>
+    <button class="nav-btn" onclick="changeThienYear(1)">›</button>
+  </div>
+  <div id="thien-banner"></div>
+  <div class="thien-cats" id="thien-cats"></div>
+  <div style="padding:0 16px;">
+    <button class="add-cat-btn" onclick="toggleAddCat()">＋ Thêm đầu mục thiện pháp</button>
+    <div class="add-cat-form" id="add-cat-form" style="display:none;">
+      <div style="font-size:13px;font-weight:700;color:#5C3D00;margin-bottom:10px;">Đầu mục mới</div>
+      <div style="margin-bottom:10px;"><label class="lbl">Tên</label><input id="new-cat-name" type="text" placeholder="VD: Pháp phục..."/></div>
+      <div style="margin-bottom:12px;">
+        <label class="lbl">Biểu tượng</label>
+        <div class="icon-grid" id="icon-grid"></div>
+      </div>
+      <div class="form-btns">
+        <button class="btn-add" onclick="addCat()">Thêm</button>
+        <button class="btn-cancel" onclick="toggleAddCat()">Huỷ</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─── DATA ────────────────────────────────────────────────────────────────────
+const ICONS = ['🌸','🕯️','📿','🏮','🌿','🍃','💐','🪷','🫙','📦','🏗️','🎁','🛕','📚','🌾','💧','🧧','🎋','🪔','⛩️'];
+const MONTHS_VN = ['Tháng 1','Tháng 2','Tháng 3','Tháng 4','Tháng 5','Tháng 6','Tháng 7','Tháng 8','Tháng 9','Tháng 10','Tháng 11','Tháng 12'];
+const DEFAULT_CATS = [
+  {id:'y-phuc',   name:'Y phục',    icon:'🧥'},
+  {id:'vat-thuc', name:'Vật thực',  icon:'🍚'},
+  {id:'sang-toa', name:'Sàng tọa',  icon:'🛏️'},
+  {id:'duoc-pham',name:'Dược phẩm', icon:'💊'},
+];
+const SK = 'cd_data_v3', CK = 'cd_cats_v1', TK = 'cd_thien_v3';
+
+let data={}, cats=[], thien={};
+let curYear=new Date().getFullYear(), curMonth=new Date().getMonth(), thienYear=new Date().getFullYear(), openDay=null;
+let selectedIcon='🌸';
+
+function load(){
+  try{ data=JSON.parse(localStorage.getItem(SK)||'{}'); }catch{data={};}
+  try{ cats=JSON.parse(localStorage.getItem(CK)||'null')||DEFAULT_CATS; }catch{cats=DEFAULT_CATS;}
+  try{ thien=JSON.parse(localStorage.getItem(TK)||'{}'); }catch{thien={};}
+}
+function saveData(){ localStorage.setItem(SK,JSON.stringify(data)); }
+function saveCats(){ localStorage.setItem(CK,JSON.stringify(cats)); }
+function saveThien(){ localStorage.setItem(TK,JSON.stringify(thien)); }
+
+function syncData(){
+  // Recompute: walk all data, ensure catId references are valid
+  // Remove orphan catIds (deleted categories)
+  const validIds = cats.map(c=>c.id);
+  let changed = false;
+  Object.keys(data).forEach(mk=>{
+    Object.keys(data[mk]).forEach(day=>{
+      const dd = data[mk][day];
+      if(!dd||typeof dd!=='object') return;
+      Object.values(dd).forEach(slot=>{
+        if(slot&&slot.catId&&!validIds.includes(slot.catId)){
+          slot.catId=null; changed=true;
+        }
+      });
+    });
+  });
+  if(changed) saveData();
+  // Refresh all tabs
+  renderMonth();
+  renderYear();
+  renderThien();
+  updateGrandTotal();
+  // Show flash confirmation
+  const btn = event.currentTarget;
+  btn.textContent='✓ Xong';
+  btn.style.background='#5C3D00';
+  setTimeout(()=>{ btn.textContent='🔄 Đồng bộ'; btn.style.background='#8B6914'; },1500);
+}
+function resetAll(){
+  ['cd_data_v2','cd_cats_v1','cd_thien_v2','cd_data_v3','cd_thien_v3',
+   'cung_duong_data_v1','cung_duong_cats_v1','cung_duong_thien_v1']
+    .forEach(k=>localStorage.removeItem(k));
+  data={}; cats=DEFAULT_CATS; thien={};
+  saveCats(); renderAll();
+}
+
+// ─── UTILS ───────────────────────────────────────────────────────────────────
+function fmtVND(n){ return (!n||isNaN(n))?'': Number(n).toLocaleString('vi-VN')+' đ'; }
+function parseAmt(s){ return parseInt(String(s||'').replace(/[^\d]/g,''))||0; }
+function daysInMonth(y,m){ return new Date(y,m+1,0).getDate(); }
+function mKey(y,m){ return y+'-'+String(m+1).padStart(2,'0'); }
+function dayTotal(d){
+  if(!d||typeof d!=='object') return 0;
+  return Object.values(d).reduce((s,slot)=>{
+    if(slot&&typeof slot==='object'&&slot.amount) return s+parseAmt(slot.amount);
+    return s;
+  },0);
+}
+function monthTotal(mk){ 
+  return Object.values(data[mk]||{}).reduce((s,d)=>s+dayTotal(d),0);
+}
+function grandTotal(){
+  return Object.keys(data).reduce((s,mk)=>s+monthTotal(mk),0);
+}
+function catMonthTotal(catId, mk){
+  const md = data[mk]||{};
+  let s=0;
+  Object.values(md).forEach(dd=>{
+    if(!dd||typeof dd!=='object') return;
+    // get all slot values regardless of key type
+    Object.values(dd).forEach(slot=>{
+      if(slot&&typeof slot==='object'&&slot.catId===catId&&slot.amount){
+        s+=parseAmt(slot.amount);
+      }
+    });
+  });
+  return s;
+}
+function catYearTotal(catId,y){
+  return Array.from({length:12},(_,i)=>catMonthTotal(catId,mKey(y,i))).reduce((a,b)=>a+b,0);
+}
+function catAllTotal(catId){
+  return Object.keys(data).reduce((s,mk)=>s+catMonthTotal(catId,mk),0);
+}
+
+// ─── TABS ────────────────────────────────────────────────────────────────────
+function showTab(t){
+  ['month','year','thien'].forEach(x=>{
+    document.getElementById('page-'+x).classList.toggle('active',x===t);
+    document.getElementById('tab-'+x).classList.toggle('active',x===t);
+  });
+  if(t==='month') renderMonth();
+  if(t==='year')  renderYear();
+  if(t==='thien') renderThien();
+}
+
+// ─── MONTH ───────────────────────────────────────────────────────────────────
+function changeMonth(d){
+  curMonth+=d;
+  if(curMonth<0){curMonth=11;curYear--;}
+  if(curMonth>11){curMonth=0;curYear++;}
+  renderMonth();
+}
+
+function renderMonthPicker(){
+  document.getElementById('year-picker-label').textContent=curYear;
+  const picker=document.getElementById('month-picker');
+  picker.innerHTML=Array.from({length:12},(_,i)=>{
+    const mk2=mKey(curYear,i);
+    const tot=monthTotal(mk2);
+    const isCur=i===curMonth;
+    return `<button onclick="selectMonth(${i})" style="
+      padding:5px 2px;border-radius:8px;border:${isCur?'2px solid #8B6914':'1px solid #E8D8A0'};
+      background:${isCur?'#8B6914':tot>0?'#FDF0C0':'#FAF7EF'};
+      color:${isCur?'#FFF8E7':tot>0?'#5C3D00':'#A0805A'};
+      font-size:11px;font-weight:${isCur||tot>0?700:400};cursor:pointer;
+      display:flex;flex-direction:column;align-items:center;gap:1px;">
+      <span>T${i+1}</span>
+      ${tot>0?`<span style="font-size:8px;">${tot>=1000000?(tot/1000000).toFixed(1)+'M':tot>=1000?Math.round(tot/1000)+'K':tot}</span>`:''}
+    </button>`;
+  }).join('');
+}
+function selectMonth(i){
+  curMonth=i;
+  openDay=null;
+  renderMonthPicker();
+  renderMonth();
+}
+function changeYear(d){ curYear+=d; }
+
+function renderMonth(){
+  const mk=mKey(curYear,curMonth);
+  const md=data[mk]||{};
+  const tot=monthTotal(mk);
+  const cnt=Object.keys(md).filter(d=>dayTotal(md[d])>0).length;
+  renderMonthPicker();
+  document.getElementById('month-sub').textContent=tot>0?'Tổng '+MONTHS_VN[curMonth]+': '+fmtVND(tot)+' · '+cnt+' ngày':''+MONTHS_VN[curMonth]+' '+curYear;
+
+  // Day grid
+  const list=document.getElementById('day-list');
+  const days=daysInMonth(curYear,curMonth);
+  let gridHTML='<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:5px;padding:10px 12px;">';
+  for(let d=1;d<=days;d++){
+    const dd=md[d]||{};
+    const tot2=dayTotal(dd);
+    const catIcons=Object.values(dd).map(slot=>{
+      if(!slot||typeof slot!=='object') return '';
+      const c=cats.find(c=>c.id===slot.catId);
+      return c?c.icon:'';
+    }).filter(Boolean).join('');
+    const isOpen=openDay===d;
+    gridHTML+=`<div id="daycell-${d}" onclick="toggleDayGrid(${d})" style="
+      border-radius:8px;padding:5px 2px;cursor:pointer;text-align:center;
+      background:${isOpen?'#8B6914':tot2>0?'#FDF0C0':'#FAF7EF'};
+      border:${isOpen?'2px solid #5C3D00':tot2>0?'1px solid #D4B85A':'1px solid #E8D8A0'};
+      min-height:44px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;">
+      <div style="font-size:13px;font-weight:700;color:${isOpen?'#FFF8E7':tot2>0?'#5C3D00':'#A0805A'};">${d}</div>
+      ${tot2>0?`<div style="font-size:8px;color:${isOpen?'#EDD98A':'#8B6914'};font-weight:700;">${tot2>=1000000?(tot2/1000000).toFixed(1)+'M':tot2>=1000?Math.round(tot2/1000)+'K':tot2}</div>`:''}
+      ${catIcons?`<div style="font-size:9px;line-height:1;">${catIcons}</div>`:''}
+    </div>`;
+  }
+  gridHTML+='</div>';
+  // Day detail panel
+  if(openDay&&openDay<=days){
+    const dd=md[openDay]||{};
+    gridHTML+='<div id="day-detail" style="border-top:2px solid #D4B85A;background:#FFFBF0;">';
+    gridHTML+=`<div style="padding:8px 14px 4px;font-size:13px;font-weight:800;color:#5C3D00;">Ngày ${openDay} — ${MONTHS_VN[curMonth]} ${curYear}</div>`;
+    for(let si=0;si<3;si++){
+      gridHTML+=makeSlotHTML(openDay,mk,si,dd[si]||dd[''+si]||{});
+    }
+    gridHTML+='</div>';
+  }
+  list.innerHTML=gridHTML;
+
+  // Summary
+  renderMonthSummary(mk,md,tot,cnt);
+  updateGrandTotal();
+}
+
+function makeDayRow(day,mk,dd){
+  const tot=dayTotal(dd);
+  const hasCats=[0,1,2].map(i=>{
+    const c=cats.find(c=>c.id===dd[i]?.catId);
+    return c?c.icon:'';
+  }).filter(Boolean).join(' ');
+
+  const div=document.createElement('div');
+  div.className='day-row';
+  div.style.background=tot>0?'#FFFBEE':'transparent';
+  div.innerHTML=`
+    <div class="day-head" id="dayhead-${mk}-${day}" onclick="toggleDay(this)">
+      <div class="day-num${tot>0?' has':''}">${day}</div>
+      <div class="day-info-wrap" style="flex:1;display:flex;align-items:center;">
+        ${tot>0?`<div class="day-info">${fmtVND(tot)}<span class="day-icons">${hasCats}</span></div>`
+               :`<div class="day-empty">chưa ghi</div>`}
+      </div>
+      <div class="day-arrow">▼</div>
+    </div>
+    <div class="day-slots">
+      ${[0,1,2].map(si=>makeSlotHTML(day,mk,si,dd[si]||dd[''+si]||{})).join('')}
+    </div>`;
+  return div;
+}
+
+function makeSlotHTML(day,mk,si,slot){
+  const cat=cats.find(c=>c.id===slot.catId);
+  const hasAmt=parseAmt(slot.amount)>0;
+  return `<div class="slot slot-${si}" id="slot-${mk}-${day}-${si}">
+    <div class="slot-header">
+      <div class="slot-cat">
+        <div class="slot-badge">${si+1}</div>
+        ${cat?`<span>${cat.icon}</span><span>${cat.name}</span>`
+             :(slot.amount?`<span style="color:#C8A84B;font-size:10px">chưa phân loại</span>`:'')}
+      </div>
+      ${slot.amount?`<div class="slot-amt">${fmtVND(slot.amount)}</div>`:''}
+    </div>
+    <div class="slot-grid">
+      <div><label class="lbl">Số tiền (đ)</label>
+        <input type="text" inputmode="numeric" placeholder="0"
+          value="${slot.amount?parseInt(slot.amount).toLocaleString('vi-VN').replace(/\./g,','):''}"
+          oninput="updateSlotAmount('${mk}',${day},${si},this)"
+          onchange="updateSlotAmount('${mk}',${day},${si},this)"/></div>
+      <div><label class="lbl">Địa điểm</label>
+        <input type="text" placeholder="Chùa, tu viện..." value="${slot.place||''}"
+          onchange="updateSlot('${mk}',${day},${si},'place',this.value)"/></div>
+      <div class="slot-full"><label class="lbl">Nội dung</label>
+        <input type="text" placeholder="Dâng vật thực, dược phẩm..." value="${slot.note||''}"
+          onchange="updateSlot('${mk}',${day},${si},'note',this.value)"/></div>
+    </div>
+    <div class="cat-btns" id="catbtns-${mk}-${day}-${si}" style="display:${hasAmt?'block':'none'}">
+      <div class="cat-lbl">Phân loại thiện pháp:</div>
+      <div class="cat-row">
+        ${cats.map(c=>`<button class="cat-btn${slot.catId===c.id?' sel':''}"
+          onclick="classify('${mk}',${day},${si},'${c.id}')">${c.icon} ${c.name}${slot.catId===c.id?' ✓':''}</button>`).join('')}
+        ${slot.catId?`<button class="cat-clear" onclick="unclassify('${mk}',${day},${si})">bỏ</button>`:''}
+      </div>
+    </div>
+  </div>`;
+}
+
+function toggleDayGrid(d){
+  openDay = (openDay===d) ? null : d;
+  renderMonth();
+  // Scroll to detail
+  if(openDay){
+    setTimeout(()=>{
+      const el=document.getElementById('day-detail');
+      if(el) el.scrollIntoView({behavior:'smooth',block:'nearest'});
+    },50);
+  }
+}
+function toggleDay(head){
+  const slots=head.nextElementSibling;
+  const arrow=head.querySelector('.day-arrow');
+  const open=slots.classList.toggle('open');
+  arrow.textContent=open?'▲':'▼';
+}
+
+function formatMoney(val){
+  // Strip non-digits, then format with comma thousands separator
+  const num = val.replace(/[^\d]/g,'');
+  if(!num) return '';
+  return parseInt(num).toLocaleString('vi-VN').replace(/\./g,',');
+}
+
+function updateSlotAmount(mk,day,si,input){
+  const raw = input.value.replace(/[^\d]/g,'');
+  const formatted = raw ? parseInt(raw).toLocaleString('vi-VN').replace(/\./g,',') : '';
+  // Store cursor position intent
+  const pos = input.selectionStart;
+  input.value = formatted;
+  // Restore cursor to end
+  input.setSelectionRange(formatted.length, formatted.length);
+  updateSlot(mk,day,si,'amount',raw);
+}
+
+function updateSlot(mk,day,si,field,val){
+  if(!data[mk]) data[mk]={};
+  if(!data[mk][day]) data[mk][day]={};
+  if(!data[mk][day][si]) data[mk][day][si]={};
+  data[mk][day][si][field]=val;
+  saveData();
+  // Only update day header — do NOT re-render whole month (closes open slots)
+  updateDayHeader(mk,day);
+  updateMonthSubtitle(mk);
+  updateGrandTotal();
+}
+
+function updateDayHeader(mk,day){
+  // In grid mode, re-render the grid cell and keep detail open
+  const dd=data[mk]&&data[mk][day]||{};
+  // Update cat buttons visibility in current open slot
+  [0,1,2,'0','1','2'].forEach(si=>{
+    const slot=dd[si]||dd[''+si];
+    const catBtns=document.getElementById('catbtns-'+mk+'-'+day+'-'+si);
+    if(catBtns){
+      const amt=slot&&parseAmt(slot.amount);
+      catBtns.style.display=amt>0?'block':'none';
+    }
+  });
+  // Re-render day grid cell
+  const cellId='daycell-'+day;
+  const cell=document.getElementById(cellId);
+  if(!cell) return;
+  const tot=dayTotal(dd);
+  const catIcons=Object.values(dd).map(slot=>{
+    if(!slot||typeof slot!=='object') return '';
+    const c=cats.find(c=>c.id===slot.catId);
+    return c?c.icon:'';
+  }).filter(Boolean).join('');
+  const isOpen=openDay===day;
+  cell.style.background=isOpen?'#8B6914':tot>0?'#FDF0C0':'#FAF7EF';
+  cell.style.border=isOpen?'2px solid #5C3D00':tot>0?'1px solid #D4B85A':'1px solid #E8D8A0';
+  cell.innerHTML=`
+    <div style="font-size:13px;font-weight:700;color:${isOpen?'#FFF8E7':tot>0?'#5C3D00':'#A0805A'};">${day}</div>
+    ${tot>0?`<div style="font-size:8px;color:${isOpen?'#EDD98A':'#8B6914'};font-weight:700;">${tot>=1000000?(tot/1000000).toFixed(1)+'M':tot>=1000?Math.round(tot/1000)+'K':tot}</div>`:''}
+    ${catIcons?`<div style="font-size:9px;line-height:1;">${catIcons}</div>`:''}`;
+}
+
+function updateMonthSubtitle(mk){
+  const md=data[mk]||{};
+  const tot=monthTotal(mk);
+  const cnt=Object.keys(md).filter(d=>dayTotal(md[d])>0).length;
+  const sub=document.getElementById('month-sub');
+  if(sub) sub.textContent=tot>0?'Tổng '+MONTHS_VN[curMonth]+': '+fmtVND(tot)+' · '+cnt+' ngày':''+MONTHS_VN[curMonth]+' '+curYear;
+  // Update month picker cell
+  renderMonthPicker();
+  // Update summary if visible
+  const sumEl=document.getElementById('month-summary');
+  if(sumEl&&tot>0) renderMonthSummary(mk,md,tot,cnt);
+}
+
+function classify(mk,day,si,catId){
+  if(!data[mk]) data[mk]={};
+  if(!data[mk][day]) data[mk][day]={};
+  if(!data[mk][day][si]) data[mk][day][si]={};
+  const slot=data[mk][day][si];
+  const amt=parseAmt(slot.amount);
+  if(!amt) return;
+  if(slot.catId===catId){
+    slot.catId=null;
+    saveData();
+    // Re-render slot to remove ✓
+    const slotEl=document.getElementById('slot-'+mk+'-'+day+'-'+si);
+    if(slotEl) slotEl.outerHTML=makeSlotHTML(day,mk,si,data[mk][day][si]);
+    updateDayHeader(mk,day);
+    return;
+  }
+  slot.catId=catId;
+  saveData();
+  // Re-render slot to show ✓
+  const slotEl=document.getElementById('slot-'+mk+'-'+day+'-'+si);
+  if(slotEl) slotEl.outerHTML=makeSlotHTML(day,mk,si,data[mk][day][si]);
+  updateDayHeader(mk,day);
+  const cat=cats.find(c=>c.id===catId);
+  showFlash(cat?.icon,cat?.name);
+  setTimeout(()=>{hideFlash();showTab('thien');},900);
+}
+
+function unclassify(mk,day,si){
+  if(!data[mk]||!data[mk][day]||!data[mk][day][si]) return;
+  data[mk][day][si].catId=null;
+  saveData();
+  updateDayHeader(mk,day);
+  updateMonthSubtitle(mk);
+  // Re-render just the slot to remove ✓
+  const slotEl=document.getElementById('slot-'+mk+'-'+day+'-'+si);
+  if(slotEl) slotEl.outerHTML=makeSlotHTML(day,mk,si,data[mk][day][si]);
+}
+
+function renderMonthSummary(mk,md,tot,cnt){
+  const el=document.getElementById('month-summary');
+  if(tot<=0){el.innerHTML='';return;}
+  // Cat breakdown
+  const catMap={};
+  Object.values(md).forEach(dd=>{
+    [0,1,2].forEach(i=>{
+      const s=dd&&dd[i];
+      if(s&&s.catId&&s.amount){
+        catMap[s.catId]=(catMap[s.catId]||0)+parseAmt(s.amount);
+      }
+    });
+  });
+  const catEntries=Object.entries(catMap).filter(([,v])=>v>0);
+  // Cộng dồn đến tháng đang xem (không cộng các tháng sau)
+  let gt=0;
+  Object.keys(data).forEach(mk2=>{
+    // Chỉ cộng nếu mk2 <= mk hiện tại
+    if(mk2<=mk) gt+=monthTotal(mk2);
+  });
+  const mn=MONTHS_VN[curMonth];
+
+  el.innerHTML=`<div class="summary-box">
+    <div class="summary-title">🪷 TỔNG KẾT ${mn.toUpperCase()} ${curYear}</div>
+    <div class="summary-total">${fmtVND(tot)}</div>
+    <div class="summary-count">${cnt} ngày cúng dường trong tháng</div>
+    ${catEntries.length?`<div class="summary-sec">
+      <div class="summary-sec-title">Tổng hợp thiện pháp tháng này</div>
+      ${catEntries.map(([id,amt])=>{
+        const c=cats.find(x=>x.id===id);
+        return `<div class="summary-cat-row">
+          <div class="summary-cat-name"><span>${c?.icon||''}</span><span>${c?.name||id}</span></div>
+          <div class="summary-cat-amt">${fmtVND(amt)}</div>
+        </div>`;
+      }).join('')}
+      <div class="summary-total-row"><span>Tổng cúng dường tháng</span><span>${fmtVND(tot)}</span></div>
+    </div>`:''}
+    <div class="summary-alltime">
+      <span>Tổng tất cả từ trước đến nay</span>
+      <span>${fmtVND(gt)}</span>
+    </div>
+    <div style="margin-top:12px;border-top:1px solid #D4B85A;padding-top:12px;">
+      <button onclick="resetMonthData()" style="width:100%;padding:9px;background:transparent;border:1px dashed #D4B85A;border-radius:8px;color:#A0805A;font-size:12px;cursor:pointer;font-weight:600;">
+        🗑 Xóa dữ liệu tháng này
+      </button>
+    </div>
+  </div>`;
+}
+
+// ─── YEAR ────────────────────────────────────────────────────────────────────
+function changeYear(d){ curYear+=d; }
+
+function renderYear(){
+  const vals=Array.from({length:12},(_,i)=>monthTotal(mKey(curYear,i)));
+  const tot=vals.reduce((a,b)=>a+b,0);
+  document.getElementById('year-title').textContent='Năm '+curYear;
+  document.getElementById('year-sub').textContent=tot>0?'Tổng năm: '+fmtVND(tot):'';
+
+  // Banner
+  const banner=document.getElementById('year-banner');
+  banner.innerHTML=tot>0?`<div class="year-banner">
+    <svg width="36" height="36" viewBox="0 0 40 40" fill="none"><ellipse cx="20" cy="26" rx="6" ry="10" fill="#EDD98A" opacity=".4"/><ellipse cx="11" cy="23" rx="6" ry="9" transform="rotate(-30 11 23)" fill="#EDD98A" opacity=".4"/><ellipse cx="29" cy="23" rx="6" ry="9" transform="rotate(30 29 23)" fill="#EDD98A" opacity=".4"/><ellipse cx="20" cy="26" rx="5" ry="9" fill="#EDD98A" opacity=".7"/></svg>
+    <div class="year-banner-text">
+      <div class="label">TỔNG CÚNG DƯỜNG NĂM ${curYear}</div>
+      <div class="val">${fmtVND(tot)}</div>
+    </div>
+  </div>`:'';
+
+  // Bar chart
+  const maxV=Math.max(...vals,1);
+  const H=130;
+  const bars=document.getElementById('bar-chart');
+  bars.innerHTML=vals.map((v,i)=>{
+    const bh=v>0?Math.max(4,Math.round(v/maxV*(H-24))):0;
+    const isMax=v===maxV&&v>0;
+    const lbl=v>=1000000?(v/1000000).toFixed(1)+'M':v>=1000?Math.round(v/1000)+'K':v||'';
+    return `<div class="bar-wrap" onclick="jumpToMonth(${i})">
+      ${v>0?`<div class="bar-label">${lbl}</div>`:'<div class="bar-label"> </div>'}
+      <div class="bar" style="height:${bh}px;background:${isMax?'linear-gradient(180deg,#5C3D00,#8B6914)':'linear-gradient(180deg,#C8A84B,#EDD98A)'}"></div>
+      <div class="bar-x">T${i+1}</div>
+    </div>`;
+  }).join('');
+
+  // Month grid
+  const grid=document.getElementById('month-grid');
+  grid.innerHTML=Array.from({length:12},(_,i)=>{
+    const mk=mKey(curYear,i);
+    const t=monthTotal(mk);
+    const cnt=Object.keys(data[mk]||{}).filter(d=>dayTotal((data[mk]||{})[d])>0).length;
+    return `<div class="month-card" onclick="jumpToMonth(${i})"
+      style="background:${t>0?'linear-gradient(135deg,#FFF8E7,#FDF0C0)':'#FAF7EF'};border:1px solid ${t>0?'#D4B85A':'#E8D8A0'};box-shadow:${t>0?'0 2px 8px rgba(139,105,20,0.12)':'none'}">
+      <div class="m-name">${MONTHS_VN[i]}</div>
+      <div class="m-val" style="color:${t>0?'#5C3D00':'#C8A84B'}">${t>0?fmtVND(t):'—'}</div>
+      ${cnt>0?`<div class="m-days">${cnt} ngày</div>`:''}
+    </div>`;
+  }).join('');
+}
+
+function jumpToMonth(i){
+  curMonth=i;
+  showTab('month');
+}
+
+// ─── THIEN PHAP ──────────────────────────────────────────────────────────────
+function changeThienYear(d){ thienYear+=d; renderThien(); }
+
+
+// Cat patterns via canvas - each segment uses a distinct visual pattern
+const CAT_PATTERNS = [
+  // 0: dots tiny 1px
+  (ctx)=>{ const p=document.createElement('canvas'); p.width=4;p.height=4;
+    const c=p.getContext('2d'); c.fillStyle='#FFF8E7'; c.fillRect(0,0,4,4);
+    c.fillStyle='#8B6914'; c.beginPath(); c.arc(2,2,0.7,0,Math.PI*2); c.fill();
+    return ctx.createPattern(p,'repeat'); },
+  // 1: diagonal lines 0.5px spaced 4px
+  (ctx)=>{ const p=document.createElement('canvas'); p.width=4;p.height=4;
+    const c=p.getContext('2d'); c.fillStyle='#FFF8E7'; c.fillRect(0,0,4,4);
+    c.strokeStyle='#5C3D00'; c.lineWidth=0.5;
+    c.beginPath(); c.moveTo(0,4); c.lineTo(4,0); c.stroke();
+    c.beginPath(); c.moveTo(-1,4); c.lineTo(3,0); c.stroke();
+    c.beginPath(); c.moveTo(1,4); c.lineTo(5,0); c.stroke();
+    return ctx.createPattern(p,'repeat'); },
+  // 2: crosshatch 0.5px
+  (ctx)=>{ const p=document.createElement('canvas'); p.width=5;p.height=5;
+    const c=p.getContext('2d'); c.fillStyle='#FDF0C0'; c.fillRect(0,0,5,5);
+    c.strokeStyle='#8B6914'; c.lineWidth=0.5;
+    c.beginPath(); c.moveTo(0,2.5); c.lineTo(5,2.5); c.stroke();
+    c.beginPath(); c.moveTo(2.5,0); c.lineTo(2.5,5); c.stroke();
+    return ctx.createPattern(p,'repeat'); },
+  // 3: dots medium 1.2px spaced 6px
+  (ctx)=>{ const p=document.createElement('canvas'); p.width=6;p.height=6;
+    const c=p.getContext('2d'); c.fillStyle='#FFF8E7'; c.fillRect(0,0,6,6);
+    c.fillStyle='#A07828'; c.beginPath(); c.arc(3,3,1.2,0,Math.PI*2); c.fill();
+    return ctx.createPattern(p,'repeat'); },
+  // 4: reverse diagonal 0.5px
+  (ctx)=>{ const p=document.createElement('canvas'); p.width=4;p.height=4;
+    const c=p.getContext('2d'); c.fillStyle='#FDF0C0'; c.fillRect(0,0,4,4);
+    c.strokeStyle='#5C3D00'; c.lineWidth=0.5;
+    c.beginPath(); c.moveTo(0,0); c.lineTo(4,4); c.stroke();
+    c.beginPath(); c.moveTo(-1,0); c.lineTo(3,4); c.stroke();
+    c.beginPath(); c.moveTo(1,0); c.lineTo(5,4); c.stroke();
+    return ctx.createPattern(p,'repeat'); },
+  // 5: horizontal lines 0.5px
+  (ctx)=>{ const p=document.createElement('canvas'); p.width=4;p.height=4;
+    const c=p.getContext('2d'); c.fillStyle='#FFF8E7'; c.fillRect(0,0,4,4);
+    c.strokeStyle='#5C3D00'; c.lineWidth=0.5;
+    c.beginPath(); c.moveTo(0,2); c.lineTo(4,2); c.stroke();
+    return ctx.createPattern(p,'repeat'); },
+];
+const CAT_COLORS = ['#C8A84B','#8B6914','#5C3D00','#A07828','#D4B85A','#6B4F10'];
+
+function renderThienChart(){
+  const months = Array.from({length:12},(_,mi)=>{
+    const mk2 = mKey(thienYear,mi);
+    const row = {};
+    cats.forEach(c=>{ row[c.id] = catMonthTotal(c.id, mk2); });
+    row._total = cats.reduce((s,c)=>s+row[c.id],0);
+    return row;
+  });
+
+  const maxV = Math.max(...months.map(r=>r._total),1);
+  const activeCats = cats.filter(c=>months.some(m=>m[c.id]>0));
+
+  // Build canvas chart
+  const W = Math.min(window.innerWidth - 32, 568);
+  const H = 140;
+  const padL=4, padR=4, padT=24, padB=20;
+  const chartW = W - padL - padR;
+  const chartH = H - padT - padB;
+  const barW = Math.floor(chartW/12);
+  const gap = Math.max(1, Math.floor(barW*0.15));
+  const bw = barW - gap;
+
+  const canvas = document.createElement('canvas');
+  canvas.width = W * devicePixelRatio;
+  canvas.height = H * devicePixelRatio;
+  canvas.style.width = W+'px';
+  canvas.style.height = H+'px';
+  canvas.style.display = 'block';
+  const ctx = canvas.getContext('2d');
+  ctx.scale(devicePixelRatio, devicePixelRatio);
+
+  // Build patterns
+  const patterns = CAT_PATTERNS.map(fn=>fn(ctx));
+
+  // Draw bars
+  months.forEach((row,mi)=>{
+    const tot = row._total;
+    if(!tot) return;
+    const x = padL + mi*barW + gap/2;
+    let yBase = padT + chartH;
+    cats.forEach((c,ci)=>{
+      const v = row[c.id];
+      if(!v) return;
+      const segH = Math.round(v/maxV*chartH);
+      ctx.fillStyle = patterns[ci%patterns.length];
+      ctx.fillRect(x, yBase-segH, bw, segH);
+      // border
+      ctx.strokeStyle = '#5C3D00';
+      ctx.lineWidth = 1.2;
+      ctx.strokeRect(x, yBase-segH, bw, segH);
+      yBase -= segH;
+    });
+    // Label
+    const lbl = tot>=1000000?(tot/1000000).toFixed(1)+'M':tot>=1000?Math.round(tot/1000)+'K':''+tot;
+    ctx.fillStyle = '#8B6914';
+    ctx.font = 'bold '+(devicePixelRatio>1?'8':'7')+'px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(lbl, x+bw/2, yBase-3);
+  });
+
+  // X axis labels
+  ctx.fillStyle = '#A0805A';
+  ctx.font = '7px sans-serif';
+  ctx.textAlign = 'center';
+  for(let i=0;i<12;i++){
+    const x = padL + i*barW + bw/2 + gap/2;
+    ctx.fillText('T'+(i+1), x, padT+chartH+14);
+  }
+
+  // Baseline
+  ctx.strokeStyle = '#E8D8A0';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(padL, padT+chartH);
+  ctx.lineTo(W-padR, padT+chartH);
+  ctx.stroke();
+
+  // Legend (SVG small swatches)
+  const legendHTML = activeCats.map((c,i)=>{
+    const SWATCH_PATTERNS = [
+      `<svg width="12" height="12"><rect width="12" height="12" fill="#FDF0C0"/><circle cx="6" cy="6" r="2" fill="#8B6914"/></svg>`,
+      `<svg width="12" height="12"><rect width="12" height="12" fill="#FFF8E7"/><line x1="0" y1="12" x2="12" y2="0" stroke="#5C3D00" stroke-width="1.5"/><line x1="-3" y1="12" x2="9" y2="0" stroke="#5C3D00" stroke-width="1.5"/><line x1="3" y1="12" x2="15" y2="0" stroke="#5C3D00" stroke-width="1.5"/></svg>`,
+      `<svg width="12" height="12"><rect width="12" height="12" fill="#EDD98A"/><line x1="0" y1="6" x2="12" y2="6" stroke="#5C3D00" stroke-width="1"/><line x1="6" y1="0" x2="6" y2="12" stroke="#5C3D00" stroke-width="1"/></svg>`,
+      `<svg width="12" height="12"><rect width="12" height="12" fill="#FFF8E7"/><circle cx="6" cy="6" r="3" fill="#A07828"/></svg>`,
+      `<svg width="12" height="12"><rect width="12" height="12" fill="#FDF0C0"/><line x1="0" y1="0" x2="12" y2="12" stroke="#8B6914" stroke-width="1.5"/><line x1="-3" y1="0" x2="9" y2="12" stroke="#8B6914" stroke-width="1.5"/><line x1="3" y1="0" x2="15" y2="12" stroke="#8B6914" stroke-width="1.5"/></svg>`,
+      `<svg width="12" height="12"><rect width="12" height="12" fill="#FFF8E7"/><line x1="0" y1="4" x2="12" y2="4" stroke="#5C3D00" stroke-width="1"/><line x1="0" y1="8" x2="12" y2="8" stroke="#5C3D00" stroke-width="1"/></svg>`,
+    ];
+    return `<div class="legend-item"><div style="width:14px;height:14px;border:1px solid #D4B85A;border-radius:2px;overflow:hidden;flex-shrink:0;">${SWATCH_PATTERNS[i%SWATCH_PATTERNS.length]}</div>${c.name}</div>`;
+  }).join('');
+
+  const existing = document.getElementById('thien-chart-wrap');
+  if(existing) existing.remove();
+  const wrap = document.createElement('div');
+  wrap.id = 'thien-chart-wrap';
+  wrap.innerHTML = `<div class="thien-chart">
+    <div class="thien-chart-title">Biểu đồ thiện pháp hàng tháng</div>
+    ${activeCats.length?`<div class="thien-chart-legend">${legendHTML}</div>`:''}
+  </div>`;
+  wrap.querySelector('.thien-chart').appendChild(canvas);
+
+  // Click handler
+  canvas.addEventListener('click', e=>{
+    const rect = canvas.getBoundingClientRect();
+    const cx = (e.clientX - rect.left);
+    const mi = Math.floor((cx - padL) / barW);
+    if(mi>=0 && mi<12) jumpToThienMonth(mi);
+  });
+
+  const banner = document.getElementById('thien-banner');
+  banner.insertAdjacentElement('afterend', wrap);
+}
+
+function jumpToThienMonth(mi){
+  // scroll to cat section
+}
+function resetMonthData(){
+  const mn = MONTHS_VN[curMonth];
+  if(!confirm('Xóa toàn bộ dữ liệu ' + mn + ' ' + curYear + '?')) return;
+  delete data[mKey(curYear,curMonth)];
+  saveData(); renderMonth(); renderThien();
+}
+function toggleMonthReset(){
+  const el=document.getElementById('month-reset-row');
+  if(el) el.style.display=el.style.display==='none'?'block':'none';
+}
+function resetThienMonth(mi){
+  // not used anymore - reset is in month tab
+}
+
+function renderThien(){
+  document.getElementById('thien-title').textContent='Thiện Pháp — Năm '+thienYear;
+  const grandYr=cats.reduce((s,c)=>s+catYearTotal(c.id,thienYear),0);
+  const grandAll=cats.reduce((s,c)=>s+catAllTotal(c.id),0);
+  document.getElementById('thien-sub').textContent=grandYr>0?'Tổng năm: '+fmtVND(grandYr):'';
+
+  // Banner
+  document.getElementById('thien-banner').innerHTML=grandAll>0?`<div class="thien-banner">
+    <svg width="34" height="34" viewBox="0 0 40 40" fill="none"><ellipse cx="20" cy="26" rx="6" ry="10" fill="#EDD98A" opacity=".4"/><ellipse cx="11" cy="23" rx="6" ry="9" transform="rotate(-30 11 23)" fill="#EDD98A" opacity=".4"/><ellipse cx="29" cy="23" rx="6" ry="9" transform="rotate(30 29 23)" fill="#EDD98A" opacity=".4"/><ellipse cx="20" cy="26" rx="5" ry="9" fill="#EDD98A" opacity=".7"/></svg>
+    <div>
+      <div style="font-size:10px;color:#EDD98A;letter-spacing:.1em;font-weight:700;margin-bottom:2px;">TỔNG CỘNG DỒN TẤT CẢ THIỆN PHÁP</div>
+      <div style="font-size:26px;font-weight:800;color:#FFF8E7;font-family:Georgia,serif;">${fmtVND(grandAll)}</div>
+      ${grandYr<grandAll?`<div style="font-size:11px;color:#EDD98A;opacity:.8;margin-top:2px;">Năm ${thienYear}: ${fmtVND(grandYr)}</div>`:''}
+    </div>
+  </div>`:'';
+
+  // Cat cards
+  const el=document.getElementById('thien-cats');
+  el.innerHTML=cats.map(cat=>{
+    const yt=catYearTotal(cat.id,thienYear);
+    const at=catAllTotal(cat.id);
+    return `<div class="cat-card">
+      <div class="cat-card-head" id="chead-${cat.id}" onclick="toggleCat('${cat.id}')">
+        <div class="cat-icon">${cat.icon}</div>
+        <div class="cat-info">
+          <div class="cat-name">${cat.name}</div>
+          <div class="cat-sub">Năm ${thienYear}: <strong style="color:${yt>0?'#8B6914':'#C8A84B'}">${yt>0?fmtVND(yt):'—'}</strong>
+            ${at>yt&&at>0?`&nbsp;· Cộng dồn: <strong style="color:#A0805A">${fmtVND(at)}</strong>`:''}
+          </div>
+        </div>
+        <span style="font-size:12px;color:#C8A84B;margin-right:4px;">▼</span>
+        <button style="background:none;border:none;cursor:pointer;color:#C8A84B;font-size:14px;padding:2px 4px;"
+          onclick="event.stopPropagation();removeCat('${cat.id}')">✕</button>
+      </div>
+      <div class="cat-body" id="cbody-${cat.id}">
+        ${Array.from({length:12},(_,mi)=>{
+          const mk2=mKey(thienYear,mi);
+          const e=(thien[cat.id]||{})[mk2]||{};
+          return `<div class="mon-row" onclick="toggleMonEdit('${cat.id}',${mi})">
+            <div class="mon-name${e.amount?' has':''}">${MONTHS_VN[mi]}</div>
+            <div class="mon-val${e.amount?' has':''}">${e.amount?fmtVND(e.amount):'—'}</div>
+            ${e.note?`<div class="mon-note">${e.note}</div>`:''}
+            <span style="font-size:11px;color:#C8A84B;">✎</span>
+          </div>
+          <div class="mon-edit" id="medit-${cat.id}-${mi}">
+            <div><label class="lbl">Số tiền</label>
+              <input type="text" inputmode="numeric" value="${e.amount||''}"
+                onchange="updateThien('${cat.id}',${mi},this.value,'amount')"/></div>
+            <div><label class="lbl">Ghi chú</label>
+              <input type="text" value="${e.note||''}"
+                onchange="updateThien('${cat.id}',${mi},this.value,'note')"/></div>
+          </div>`;
+        }).join('')}
+        <div class="cat-footer">
+          <div class="cat-footer-row">
+            <span style="font-size:12px;font-weight:700;color:#5C3D00;">Tổng năm ${thienYear}</span>
+            <span style="font-size:16px;font-weight:800;color:#8B6914;font-family:Georgia,serif;">${yt>0?fmtVND(yt):'—'}</span>
+          </div>
+          ${at>0?`<div class="cat-footer-row" style="margin-top:4px;">
+            <span style="font-size:11px;color:#8B6914;">Cộng dồn tất cả</span>
+            <span style="font-size:13px;font-weight:700;color:#5C3D00;">${fmtVND(at)}</span>
+          </div>`:''}
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+
+  // Icon grid
+  const ig=document.getElementById('icon-grid');
+  ig.innerHTML=ICONS.map(ic=>`<button class="icon-btn${ic===selectedIcon?' sel':''}" onclick="selectIcon('${ic}')">${ic}</button>`).join('');
+  renderThienChart();
+}
+
+function toggleCat(id){
+  const head=document.getElementById('chead-'+id);
+  const body=document.getElementById('cbody-'+id);
+  const open=body.classList.toggle('open');
+  head.classList.toggle('open',open);
+  head.querySelector('span').textContent=open?'▲':'▼';
+}
+
+function toggleMonEdit(catId,mi){
+  const el=document.getElementById('medit-'+catId+'-'+mi);
+  el.classList.toggle('open');
+}
+
+function updateThien(catId,mi,val,field){
+  if(!thien[catId]) thien[catId]={};
+  const mk2=mKey(thienYear,mi);
+  if(!thien[catId][mk2]) thien[catId][mk2]={};
+  thien[catId][mk2][field]=val;
+  saveThien();
+  // Refresh header
+  const yt=catYearTotal(catId,thienYear);
+  const at=catAllTotal(catId);
+  const sub=document.querySelector('#chead-'+catId+' .cat-sub');
+  if(sub) sub.innerHTML=`Năm ${thienYear}: <strong style="color:${yt>0?'#8B6914':'#C8A84B'}">${yt>0?fmtVND(yt):'—'}</strong>
+    ${at>yt&&at>0?`&nbsp;· Cộng dồn: <strong style="color:#A0805A">${fmtVND(at)}</strong>`:''}`;
+}
+
+function removeCat(id){
+  if(!confirm('Xóa đầu mục này?')) return;
+  cats=cats.filter(c=>c.id!==id);
+  saveCats(); renderThien();
+}
+
+function toggleAddCat(){
+  const f=document.getElementById('add-cat-form');
+  f.style.display=f.style.display==='none'?'block':'none';
+}
+
+function selectIcon(ic){
+  selectedIcon=ic;
+  document.querySelectorAll('.icon-btn').forEach(b=>{
+    b.classList.toggle('sel',b.textContent===ic);
+  });
+}
+
+function addCat(){
+  const nm=document.getElementById('new-cat-name').value.trim();
+  if(!nm) return;
+  cats.push({id:'cat-'+Date.now(),name:nm,icon:selectedIcon});
+  saveCats();
+  document.getElementById('new-cat-name').value='';
+  document.getElementById('add-cat-form').style.display='none';
+  renderThien();
+}
+
+// ─── FLASH ───────────────────────────────────────────────────────────────────
+function showFlash(icon,name){
+  document.getElementById('f-icon').textContent=icon||'🌸';
+  document.getElementById('f-name').textContent=name||'';
+  document.getElementById('flash').style.display='block';
+}
+function hideFlash(){ document.getElementById('flash').style.display='none'; }
+
+// ─── GRAND TOTAL ─────────────────────────────────────────────────────────────
+function updateGrandTotal(){
+  const gt=grandTotal();
+  document.getElementById('grand-total').textContent=gt>0?'Tổng đã nhập: '+fmtVND(gt):'';
+}
+
+// ─── RENDER ALL ──────────────────────────────────────────────────────────────
+function renderAll(){ renderMonth(); renderYear(); renderThien(); updateGrandTotal(); }
+
+// ─── INIT ────────────────────────────────────────────────────────────────────
+load();
+showTab('thien');
+updateGrandTotal();
+
+// Service Worker
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
+}
+</script>
+</body>
+</html>
