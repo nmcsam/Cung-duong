@@ -322,6 +322,8 @@ const SK = 'cd_data_v3', CK = 'cd_cats_v1', TK = 'cd_thien_v3';
 let data={}, cats=[], thien={};
 let curYear=new Date().getFullYear(), curMonth=new Date().getMonth(), thienYear=new Date().getFullYear(), openDay=null, copiedMonth=null, copiedSlot=null;
 let selectedIcon='🌸';
+let curTab='thien';
+function saveView(){ try{ localStorage.setItem('cd_view', JSON.stringify({t:curTab, y:curYear, m:curMonth, ty:thienYear})); }catch(e){} }
 function load(){
   try{ data=JSON.parse(localStorage.getItem(SK)||'{}'); }catch{data={};}
   try{ cats=JSON.parse(localStorage.getItem(CK)||'null')||DEFAULT_CATS; }catch{cats=DEFAULT_CATS;}
@@ -408,6 +410,7 @@ function catYearTotal(catId,y){ return Array.from({length:12},(_,i)=>catMonthTot
 function catAllTotal(catId){ return Object.keys(data).reduce((s,mk)=>s+catMonthTotal(catId,mk),0); }
 
 function showTab(t){
+  curTab=t; saveView();
   ['month','year','thien'].forEach(x=>{
     document.getElementById('page-'+x).classList.toggle('active',x===t);
     document.getElementById('tab-'+x).classList.toggle('active',x===t);
@@ -419,7 +422,7 @@ function showTab(t){
 function changeMonth(d){
   curMonth+=d;
   if(curMonth<0){curMonth=11;curYear--;} if(curMonth>11){curMonth=0;curYear++;}
-  renderMonth();
+  renderMonth(); saveView();
 }
 function renderMonthPicker(){
   document.getElementById('year-picker-label').textContent=curYear;
@@ -430,7 +433,7 @@ function renderMonthPicker(){
   }).join('');
 }
 function selectMonth(i){ curMonth=i; openDay=null; renderMonthPicker(); renderMonth(); }
-function changeYear(d){ curYear+=d; }
+function changeYear(d){ curYear+=d; saveView(); }
 function renderMonth(){
   const mk=mKey(curYear,curMonth), md=data[mk]||{};
   const tot=monthTotal(mk), cnt=Object.keys(md).filter(d=>dayTotal(md[d])>0).length;
@@ -612,7 +615,7 @@ function renderMonthSummary(mk,md,tot,cnt){
   </div>`;
 }
 
-function changeYear(d){ curYear+=d; }
+function changeYear(d){ curYear+=d; saveView(); }
 function renderYear(){
   const vals=Array.from({length:12},(_,i)=>monthTotal(mKey(curYear,i)));
   const tot=vals.reduce((a,b)=>a+b,0);
@@ -633,7 +636,7 @@ function renderYear(){
   }).join('');
 }
 function jumpToMonth(i){ curMonth=i; showTab('month'); }
-function changeThienYear(d){ thienYear+=d; renderThien(); }
+function changeThienYear(d){ thienYear+=d; renderThien(); saveView(); }
 
 const CAT_PATTERNS = [
   (ctx)=>{ const p=document.createElement('canvas'); p.width=4;p.height=4; const c=p.getContext('2d'); c.fillStyle='#FFF8E7'; c.fillRect(0,0,4,4); c.fillStyle='#8B6914'; c.beginPath(); c.arc(2,2,0.7,0,Math.PI*2); c.fill(); return ctx.createPattern(p,'repeat'); },
@@ -1294,7 +1297,19 @@ function bkRestore(day){
 async function requestPersist(){ try{ if(navigator.storage&&navigator.storage.persist){ await navigator.storage.persist(); } }catch(e){} }
 
 load();
-showTab('thien');
+(function(){
+  let t='thien';
+  try{
+    const v=JSON.parse(localStorage.getItem('cd_view')||'null');
+    if(v){
+      if(typeof v.y==='number') curYear=v.y;
+      if(typeof v.m==='number' && v.m>=0 && v.m<=11) curMonth=v.m;
+      if(typeof v.ty==='number') thienYear=v.ty;
+      if(['thien','month','year'].includes(v.t)) t=v.t;
+    }
+  }catch(e){}
+  showTab(t);
+})();
 updateGrandTotal();
 initSync();
 requestPersist();
