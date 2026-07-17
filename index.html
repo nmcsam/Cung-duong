@@ -132,6 +132,13 @@ input{padding:7px 10px;border:1px solid #D4B85A;border-radius:6px;background:#FF
 </style>
 </head>
 <body>
+<div id="lock-screen" style="display:none;position:fixed;inset:0;z-index:700;background:linear-gradient(170deg,#3a2600,#5C3D00 55%,#2e1e00);flex-direction:column;align-items:center;justify-content:center;gap:16px;text-align:center;padding:24px">
+  <div style="font-size:44px">🔒</div>
+  <div style="font-size:17px;font-weight:700;color:#FFF8E7">Nhập mật khẩu để mở app</div>
+  <input type="password" id="lock-input" inputmode="numeric" autocomplete="off" onkeydown="if(event.key==='Enter')tryUnlock()" style="width:min(240px,80vw);padding:12px 14px;font-size:18px;text-align:center;border:none;border-radius:12px;background:#fff;color:#111;letter-spacing:4px">
+  <button onclick="tryUnlock()" style="width:min(240px,80vw);padding:12px;border:none;border-radius:12px;background:#C9A54A;color:#2c1f00;font-size:15px;font-weight:800;cursor:pointer">Mở khóa</button>
+  <div id="lock-err" style="font-size:12px;color:#ffd1c8;min-height:16px"></div>
+</div>
 <div id="home-screen" onclick="document.getElementById('home-screen').style.display='none'" style="position:fixed;inset:0;z-index:500;background:linear-gradient(170deg,#3a2600,#5C3D00 55%,#2e1e00);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;cursor:pointer;text-align:center;padding:24px">
   <svg viewBox="0 0 220 200" style="width:190px;height:172px;filter:drop-shadow(0 8px 24px rgba(0,0,0,.4))" aria-label="Cư sĩ dâng hoa sen lên Đức Phật">
     <circle cx="110" cy="100" r="96" fill="#FFF4D6"/>
@@ -314,6 +321,15 @@ window.onerror = function(msg, src, line, col, err) {
         <button style="flex:1;padding:10px;border:none;border-radius:10px;background:#EDD98A;color:#5C3D00;font-weight:700;font-size:13px;cursor:pointer" onclick="bkShowList()">🕘 Bản sao lưu</button>
       </div>
       <div id="bk-list" style="margin-top:8px"></div>
+    </div>
+    <div style="border:1.5px solid #C9A54A;border-radius:12px;padding:12px;margin-bottom:12px">
+      <div style="font-weight:800;font-size:13.5px;margin-bottom:6px">🔒 Mật khẩu mở app</div>
+      <p id="pass-status" style="font-size:12px;color:#7A6A45;margin:0 0 10px"></p>
+      <div style="display:flex;gap:8px">
+        <button onclick="setPassFlow()" id="pass-set-btn" style="flex:1;padding:10px;border:none;border-radius:10px;background:#5C3D00;color:#FFF8E7;font-weight:700;font-size:13px;cursor:pointer">Đặt mật khẩu</button>
+        <button onclick="clearPassFlow()" id="pass-off-btn" style="flex:1;display:none;padding:10px;border:1.5px solid #C9A54A;border-radius:10px;background:transparent;color:#5C3D00;font-weight:700;font-size:13px;cursor:pointer">Tắt mật khẩu</button>
+      </div>
+      <p style="font-size:11px;color:#7A6A45;margin:8px 0 0">Mật khẩu chỉ lưu trên máy này (không đồng bộ).</p>
     </div>
     <div style="border:1.5px solid #c0503e;border-radius:12px;padding:12px;margin-bottom:12px">
       <div style="font-weight:800;font-size:13.5px;margin-bottom:6px;color:#8a2f18">Vùng nguy hiểm</div>
@@ -1277,6 +1293,41 @@ function queueCloudSave(){
 }
 function initSync(){ updateSyncBtn(); } // Không tự động kết nối khi mở app — bấm ☁️ để đồng bộ
 // ==== CÀI ĐẶT + SAO LƯU ĐỊNH KỲ ====
+// ===== Mật khẩu mở app (lưu cục bộ trên máy) =====
+function hashPass(p){let h=5381;for(let i=0;i<p.length;i++){h=((h<<5)+h+p.charCodeAt(i))|0;}return 'h'+h;}
+function getPass(){try{return localStorage.getItem('cd_pass')||'';}catch(e){return'';}}
+function setPassFlow(){
+  const cur=getPass();
+  if(cur){ const old=prompt('Nhập mật khẩu hiện tại:'); if(old===null)return; if(hashPass(old)!==cur){toast('✗ Sai mật khẩu');return;} }
+  const p1=prompt(cur?'Mật khẩu mới (ít nhất 4 ký tự):':'Đặt mật khẩu (ít nhất 4 ký tự):'); if(p1===null)return;
+  if(!p1||p1.length<4){toast('Mật khẩu cần ít nhất 4 ký tự');return;}
+  const p2=prompt('Nhập lại mật khẩu:'); if(p2===null)return;
+  if(p2!==p1){toast('✗ Hai lần nhập không khớp');return;}
+  try{localStorage.setItem('cd_pass',hashPass(p1));}catch(e){}
+  toast('✓ Đã đặt mật khẩu — sẽ hỏi khi mở app'); updatePassUI();
+}
+function clearPassFlow(){
+  const cur=getPass(); if(!cur){toast('Chưa đặt mật khẩu');return;}
+  const old=prompt('Nhập mật khẩu hiện tại để tắt:'); if(old===null)return;
+  if(hashPass(old)!==cur){toast('✗ Sai mật khẩu');return;}
+  try{localStorage.removeItem('cd_pass');}catch(e){}
+  toast('✓ Đã tắt mật khẩu'); updatePassUI();
+}
+function updatePassUI(){
+  const t=document.getElementById('pass-status'); if(t) t.textContent=getPass()?'Đang BẬT — app sẽ hỏi mật khẩu mỗi khi mở.':'Đang tắt — ai cũng mở được app.';
+  const sb=document.getElementById('pass-set-btn'); if(sb) sb.textContent=getPass()?'Đổi mật khẩu':'Đặt mật khẩu';
+  const ob=document.getElementById('pass-off-btn'); if(ob) ob.style.display=getPass()?'':'none';
+}
+function tryUnlock(){
+  const inp=document.getElementById('lock-input');
+  if(hashPass((inp&&inp.value)||'')===getPass()){
+    const l=document.getElementById('lock-screen'); if(l) l.style.display='none';
+  }else{
+    const er=document.getElementById('lock-err'); if(er) er.textContent='✗ Sai mật khẩu, thử lại';
+    if(inp){inp.value='';inp.focus();}
+  }
+}
+function initLock(){ if(getPass()){ const l=document.getElementById('lock-screen'); if(l){ l.style.display='flex'; setTimeout(function(){const i=document.getElementById('lock-input');if(i)i.focus();},200); } } updatePassUI(); }
 function openSettingsModal(){
   const st=document.getElementById('set-sync-status');
   if(st) st.textContent = syncCode ? ('Đang đồng bộ — mã: '+syncCode) : 'Chưa kết nối đồng bộ.';
@@ -1375,6 +1426,7 @@ cleanupData();
 })();
 updateGrandTotal();
 initSync();
+initLock();
 requestPersist();
 setTimeout(bkCheckAuto, 4000);
 if('serviceWorker' in navigator){
