@@ -150,7 +150,8 @@ window.onerror = function(msg, src, line, col, err) {
   <div class="sub">Theo dõi thiện pháp — Phước báu tăng trưởng</div>
   <div id="grand-total"></div>
   <div style="display:flex;justify-content:center;gap:6px;margin-top:6px;flex-wrap:wrap;">
-    <button onclick="syncData()" style="padding:4px 12px;background:#8B6914;border:none;border-radius:20px;color:#FFF8E7;font-size:11px;font-weight:700;cursor:pointer;">🔄 Đồng bộ</button>
+    <button id="sync-btn" onclick="openSyncModal()" style="padding:4px 12px;background:#8B6914;border:none;border-radius:20px;color:#FFF8E7;font-size:11px;font-weight:700;cursor:pointer;">☁️ Đám mây</button>
+    <button onclick="syncData()" style="padding:4px 12px;background:#5C3D00;border:none;border-radius:20px;color:#EDD98A;font-size:11px;font-weight:700;cursor:pointer;">🔄 Làm mới</button>
     <button onclick="exportData()" style="padding:4px 12px;background:#5C3D00;border:none;border-radius:20px;color:#EDD98A;font-size:11px;font-weight:700;cursor:pointer;">📤 Xuất</button>
     <button onclick="document.getElementById('import-file').click()" style="padding:4px 12px;background:#5C3D00;border:none;border-radius:20px;color:#EDD98A;font-size:11px;font-weight:700;cursor:pointer;">📥 Nhập</button>
     <input type="file" id="import-file" accept=".json" style="display:none" onchange="importData(this)"/>
@@ -230,6 +231,48 @@ window.onerror = function(msg, src, line, col, err) {
     </div>
   </div>
 </div>
+<style>
+#cd-toast{position:fixed;left:50%;bottom:30px;transform:translateX(-50%) translateY(20px);background:#3d2a00;color:#FFF8E7;padding:10px 18px;border-radius:24px;font-size:13px;font-weight:600;opacity:0;pointer-events:none;transition:.25s;z-index:999;max-width:88vw;text-align:center}
+#cd-toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+#sync-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:200;align-items:flex-start;justify-content:center;padding:10vh 14px 0}
+#sync-modal.on{display:flex}
+#sync-modal .box{background:#FFF8E7;color:#3d2a00;border-radius:16px;padding:18px;width:100%;max-width:380px;box-shadow:0 12px 40px rgba(0,0,0,.35)}
+#sync-modal h3{margin:0 0 6px;font-size:17px}
+#sync-modal .hint{font-size:12.5px;color:#7a5c1e;line-height:1.5;margin-bottom:12px}
+#sync-code-input{width:100%;padding:10px 12px;border:1.5px solid #C9A54A;border-radius:10px;font-size:15px;font-weight:700;letter-spacing:1px;text-transform:uppercase;background:#fff;color:#3d2a00;box-sizing:border-box}
+#sync-modal .row{display:flex;gap:8px;margin-top:10px}
+#sync-modal .row button{flex:1;padding:10px 6px;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;background:#EDD98A;color:#5C3D00}
+#sync-modal .row button.p{background:#8B6914;color:#FFF8E7}
+#sync-status{font-size:12px;color:#7a5c1e;margin-top:12px;text-align:center}
+#sync-conflict-box{display:none;margin-top:12px;padding:12px;border:1.5px solid #c0503e;border-radius:10px;background:#ffece8}
+#sync-conflict-text{font-size:12.5px;line-height:1.55;color:#4a1c12}
+</style>
+<div id="sync-modal" onclick="if(event.target===this)closeSyncModal()">
+  <div class="box">
+    <h3>☁️ Đồng bộ nhiều thiết bị</h3>
+    <div class="hint">Nhập <strong>cùng một mã</strong> trên các thiết bị để dữ liệu cúng dường tự đồng bộ hai chiều và được lưu dự phòng trên đám mây.</div>
+    <input type="text" id="sync-code-input" placeholder="VD: SAM2026CD" maxlength="14">
+    <div class="row">
+      <button onclick="genSyncCode()">🎲 Tạo mã mới</button>
+      <button class="p" onclick="connectSync(document.getElementById('sync-code-input').value,false)">✓ Kết nối</button>
+    </div>
+    <div id="sync-status">Chưa kết nối</div>
+    <div id="sync-conflict-box">
+      <div id="sync-conflict-text"></div>
+      <div class="row">
+        <button onclick="resolveKeepLocal()">📱 Giữ máy này</button>
+        <button onclick="resolveKeepRemote()">☁️ Giữ đám mây</button>
+      </div>
+    </div>
+    <div class="row" style="margin-top:14px">
+      <button onclick="disconnectSync()">Ngắt kết nối</button>
+      <button onclick="closeSyncModal()">Đóng</button>
+    </div>
+  </div>
+</div>
+<div id="cd-toast"></div>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 <script>
 const ICONS = ['🌸','🕯️','📿','🏮','🌿','🍃','💐','🪷','🫙','📦','🏗️','🎁','🛕','📚','🌾','💧','🧧','🎋','🪔','⛩️'];
 const MONTHS_VN = ['Tháng 1','Tháng 2','Tháng 3','Tháng 4','Tháng 5','Tháng 6','Tháng 7','Tháng 8','Tháng 9','Tháng 10','Tháng 11','Tháng 12'];
@@ -248,9 +291,9 @@ function load(){
   try{ cats=JSON.parse(localStorage.getItem(CK)||'null')||DEFAULT_CATS; }catch{cats=DEFAULT_CATS;}
   try{ thien=JSON.parse(localStorage.getItem(TK)||'{}'); }catch{thien={};}
 }
-function saveData(){ localStorage.setItem(SK,JSON.stringify(data)); }
-function saveCats(){ localStorage.setItem(CK,JSON.stringify(cats)); }
-function saveThien(){ localStorage.setItem(TK,JSON.stringify(thien)); }
+function saveData(){ localStorage.setItem(SK,JSON.stringify(data)); queueCloudSave(); }
+function saveCats(){ localStorage.setItem(CK,JSON.stringify(cats)); queueCloudSave(); }
+function saveThien(){ localStorage.setItem(TK,JSON.stringify(thien)); queueCloudSave(); }
 function syncData(){
   const validIds = cats.map(c=>c.id);
   let changed = false;
@@ -270,11 +313,14 @@ function syncData(){
   setTimeout(()=>{ btn.textContent='🔄 Đồng bộ'; btn.style.background='#8B6914'; },1500);
 }
 function resetAll(){
+  if(!confirm('⚠️ XÓA TOÀN BỘ dữ liệu cúng dường trên máy này?\nHãy bấm 📤 Xuất để lưu file dự phòng trước khi xóa!'))return;
+  if(!confirm('Xác nhận lần cuối: dữ liệu đã xóa KHÔNG THỂ khôi phục. Vẫn xóa?'))return;
+  if(syncCode && !confirm('Đang bật đồng bộ đám mây — xóa ở đây sẽ XÓA CẢ BẢN LƯU TRÊN ĐÁM MÂY.\nVẫn tiếp tục?'))return;
   ['cd_data_v2','cd_cats_v1','cd_thien_v2','cd_data_v3','cd_thien_v3',
    'cung_duong_data_v1','cung_duong_cats_v1','cung_duong_thien_v1']
     .forEach(k=>localStorage.removeItem(k));
   data={}; cats=DEFAULT_CATS; thien={};
-  saveCats(); renderAll();
+  saveData(); saveCats(); saveThien(); renderAll();
 }
 
 // ── PATCH 1: fmtInput using loop (reliable on all Android) ──
@@ -949,9 +995,181 @@ function importData(input){
 }
 
 function renderAll(){ renderMonth(); renderYear(); renderThien(); updateGrandTotal(); }
+
+// ==== ĐỒNG BỘ ĐÁM MÂY (Firebase Firestore) — cùng project với app Thiền, collection riêng 'cd_syncs' ====
+const firebaseConfig = {
+  apiKey: "AIzaSyBDvIFgBq0PmZ4fjWu0RUSZAgh_V5N58G0",
+  authDomain: "daily-meditation-d6bdf.firebaseapp.com",
+  projectId: "daily-meditation-d6bdf",
+  storageBucket: "daily-meditation-d6bdf.firebasestorage.app",
+  messagingSenderId: "619038884675",
+  appId: "1:619038884675:web:4db3c469bb5f70c899a5f6"
+};
+let fbDb=null,syncUnsub=null,syncCode='',syncEcho=false,syncTimer=null,pendingConflict=null,cdUpdatedAt=0;
+try{ syncCode=localStorage.getItem('cd_sync_code')||''; }catch(e){}
+try{ cdUpdatedAt=parseInt(localStorage.getItem('cd_updated_at')||'0',10)||0; }catch(e){}
+function toast(msg){ const t=document.getElementById('cd-toast'); if(!t){alert(msg);return;} t.textContent=msg; t.classList.add('on'); clearTimeout(toast._t); toast._t=setTimeout(function(){t.classList.remove('on');},2600); }
+function fbConfigured(){ return !!(firebaseConfig.apiKey && firebaseConfig.projectId); }
+function initFirebase(){
+  if(!fbConfigured()||typeof firebase==='undefined')return false;
+  try{ if(!fbDb){ if(!firebase.apps.length)firebase.initializeApp(firebaseConfig); fbDb=firebase.firestore(); } return true; }
+  catch(e){ console.error(e); return false; }
+}
+function packState(){ return JSON.stringify({data:data,cats:cats,thien:thien}); }
+function dataSummary(st){
+  let slots=0,months=0,marks=0;
+  try{
+    const d=(st&&st.data)||{};
+    Object.keys(d).forEach(function(mk){
+      let has=false;
+      Object.keys(d[mk]||{}).forEach(function(day){
+        const dd=d[mk][day];
+        if(dd&&typeof dd==='object'){ const n=Object.keys(dd).length; if(n){slots+=n;has=true;} }
+      });
+      if(has)months++;
+    });
+    marks=Object.keys((st&&st.thien)||{}).length;
+  }catch(e){}
+  return {count:slots+marks, slots:slots, months:months, marks:marks};
+}
+function saveLocalOnly(){
+  try{
+    localStorage.setItem(SK,JSON.stringify(data));
+    localStorage.setItem(CK,JSON.stringify(cats));
+    localStorage.setItem(TK,JSON.stringify(thien));
+  }catch(e){}
+}
+function stampLocal(t){ cdUpdatedAt=t||Date.now(); try{localStorage.setItem('cd_updated_at',String(cdUpdatedAt));}catch(e){} }
+function applyRemote(remoteST, updatedAt){
+  data=(remoteST&&remoteST.data)||{};
+  cats=(remoteST&&remoteST.cats&&remoteST.cats.length)?remoteST.cats:DEFAULT_CATS;
+  thien=(remoteST&&remoteST.thien)||{};
+  saveLocalOnly(); stampLocal(updatedAt);
+  renderAll();
+}
+function updateSyncBtn(){
+  const b=document.getElementById('sync-btn'); if(!b)return;
+  if(pendingConflict){ b.textContent='⚠️ Đám mây'; b.style.background='#c0503e'; }
+  else if(syncCode&&fbDb){ b.textContent='☁️ Đang bật'; b.style.background='#4c7a3a'; }
+  else { b.textContent='☁️ Đám mây'; b.style.background='#8B6914'; }
+}
+function genSyncCode(){
+  const chars='ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; let c='';
+  for(let i=0;i<10;i++)c+=chars[Math.floor(Math.random()*chars.length)];
+  document.getElementById('sync-code-input').value=c;
+}
+function openSyncModal(){
+  document.getElementById('sync-code-input').value=syncCode;
+  const box=document.getElementById('sync-conflict-box');
+  if(pendingConflict){
+    const l=dataSummary({data:data,thien:thien}), r=dataSummary(pendingConflict.remoteST);
+    document.getElementById('sync-conflict-text').innerHTML='⚠️ <strong>Phát hiện khác biệt dữ liệu</strong> — chưa tự động đồng bộ để tránh mất dữ liệu.<br><br>Máy này: '+l.slots+' mục cúng dường ('+l.months+' tháng), '+l.marks+' ngày thiện pháp<br>Đám mây: '+r.slots+' mục cúng dường ('+r.months+' tháng), '+r.marks+' ngày thiện pháp<br><br>Chọn bên bạn muốn <strong>giữ lại</strong> (bên còn lại sẽ bị thay thế):';
+    box.style.display='block';
+    document.getElementById('sync-status').textContent='';
+  }else{
+    box.style.display='none';
+    document.getElementById('sync-status').textContent = syncCode ? ('✓ Đang đồng bộ — mã: '+syncCode) : 'Chưa kết nối';
+  }
+  document.getElementById('sync-modal').classList.add('on');
+}
+function closeSyncModal(){ document.getElementById('sync-modal').classList.remove('on'); }
+function connectSync(code,silent){
+  code=(code||'').trim().toUpperCase();
+  if(!code){ if(!silent)toast('Nhập hoặc tạo mã trước'); return; }
+  if(!initFirebase()){ if(!silent)toast('⚠️ Không tải được Firebase — kiểm tra mạng'); return; }
+  syncCode=code; try{localStorage.setItem('cd_sync_code',syncCode);}catch(e){}
+  if(syncUnsub){ syncUnsub(); syncUnsub=null; }
+  pendingConflict=null;
+  const ref=fbDb.collection('cd_syncs').doc(syncCode);
+  ref.get().then(function(doc){
+    if(!doc.exists){
+      pushToCloud(); attachSyncListener(ref); updateSyncBtn();
+      if(!silent){ toast('✓ Đã kết nối — đã tải dữ liệu máy này lên đám mây'); closeSyncModal(); }
+      return;
+    }
+    let remoteST=null;
+    try{ remoteST=JSON.parse(doc.data().payload); }catch(e){ remoteST={data:{}}; }
+    const l=dataSummary({data:data,thien:thien}), r=dataSummary(remoteST);
+    if(l.count===0 && r.count>0){
+      applyRemote(remoteST, doc.data().updatedAt); attachSyncListener(ref); updateSyncBtn();
+      if(!silent){ toast('☁️ Đã tải dữ liệu từ đám mây về máy này'); closeSyncModal(); }
+    }else if(l.count>0 && r.count===0){
+      pushToCloud(); attachSyncListener(ref); updateSyncBtn();
+      if(!silent){ toast('✓ Đã đẩy dữ liệu máy này lên đám mây (đám mây đang trống)'); closeSyncModal(); }
+    }else if(l.count===0 && r.count===0){
+      attachSyncListener(ref); updateSyncBtn();
+      if(!silent){ toast('✓ Đã kết nối'); closeSyncModal(); }
+    }else{
+      pendingConflict={remoteST:remoteST,ref:ref};
+      updateSyncBtn();
+      openSyncModal();
+    }
+  }).catch(function(err){ console.error(err); if(!silent)toast('Lỗi kết nối: '+err.message); });
+}
+function attachSyncListener(ref){
+  syncUnsub=ref.onSnapshot(function(doc){
+    if(!doc.exists || pendingConflict)return;
+    if(syncEcho){ syncEcho=false; return; }
+    const remote=doc.data();
+    if(!remote||!remote.updatedAt||remote.updatedAt<=cdUpdatedAt)return;
+    let remoteST=null;
+    try{ remoteST=JSON.parse(remote.payload); }catch(e){ return; }
+    const l=dataSummary({data:data,thien:thien}), r=dataSummary(remoteST);
+    if(r.count===0 && l.count>0){
+      pendingConflict={remoteST:remoteST,ref:ref};
+      updateSyncBtn();
+      toast('⚠️ Đám mây báo dữ liệu trống — đã CHẶN để bảo vệ dữ liệu máy này. Mở ☁️ để xử lý.');
+      return;
+    }
+    applyRemote(remoteST, remote.updatedAt);
+    toast('☁️ Đã nhận dữ liệu mới');
+  },function(err){ console.error(err); toast('Lỗi đồng bộ: '+err.message); });
+}
+function resolveKeepLocal(){
+  if(!pendingConflict)return;
+  const ref=pendingConflict.ref;
+  pendingConflict=null;
+  pushToCloud(); attachSyncListener(ref); updateSyncBtn();
+  document.getElementById('sync-conflict-box').style.display='none';
+  toast('✓ Đã giữ dữ liệu máy này — đã ghi đè lên đám mây');
+  closeSyncModal();
+}
+function resolveKeepRemote(){
+  if(!pendingConflict)return;
+  const ref=pendingConflict.ref, remoteST=pendingConflict.remoteST;
+  pendingConflict=null;
+  applyRemote(remoteST, Date.now());
+  pushToCloud();
+  attachSyncListener(ref); updateSyncBtn();
+  document.getElementById('sync-conflict-box').style.display='none';
+  toast('✓ Đã dùng dữ liệu từ đám mây — đã thay thế dữ liệu máy này');
+  closeSyncModal();
+}
+function disconnectSync(){
+  if(syncUnsub){ syncUnsub(); syncUnsub=null; }
+  syncCode=''; pendingConflict=null;
+  try{localStorage.removeItem('cd_sync_code');}catch(e){}
+  updateSyncBtn(); toast('Đã ngắt đồng bộ — dữ liệu trên đám mây vẫn còn'); closeSyncModal();
+}
+function pushToCloud(){
+  if(!syncCode||!fbDb)return;
+  stampLocal();
+  syncEcho=true;
+  fbDb.collection('cd_syncs').doc(syncCode).set({payload:packState(),updatedAt:cdUpdatedAt},{merge:true}).catch(function(e){console.error(e);});
+}
+function queueCloudSave(){
+  if(!syncCode||pendingConflict)return;
+  clearTimeout(syncTimer);
+  syncTimer=setTimeout(pushToCloud,800);
+}
+function initSync(){ updateSyncBtn(); if(syncCode&&initFirebase()) connectSync(syncCode,true); }
+async function requestPersist(){ try{ if(navigator.storage&&navigator.storage.persist){ await navigator.storage.persist(); } }catch(e){} }
+
 load();
 showTab('thien');
 updateGrandTotal();
+initSync();
+requestPersist();
 if('serviceWorker' in navigator){
   window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
 }
