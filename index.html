@@ -152,10 +152,8 @@ window.onerror = function(msg, src, line, col, err) {
   <div style="display:flex;justify-content:center;gap:6px;margin-top:6px;flex-wrap:wrap;">
     <button id="sync-btn" onclick="openSyncModal()" style="padding:4px 12px;background:#8B6914;border:none;border-radius:20px;color:#FFF8E7;font-size:11px;font-weight:700;cursor:pointer;">☁️ Đám mây</button>
     <button onclick="syncData()" style="padding:4px 12px;background:#5C3D00;border:none;border-radius:20px;color:#EDD98A;font-size:11px;font-weight:700;cursor:pointer;">🔄 Làm mới</button>
-    <button onclick="exportData()" style="padding:4px 12px;background:#5C3D00;border:none;border-radius:20px;color:#EDD98A;font-size:11px;font-weight:700;cursor:pointer;">📤 Xuất</button>
-    <button onclick="document.getElementById('import-file').click()" style="padding:4px 12px;background:#5C3D00;border:none;border-radius:20px;color:#EDD98A;font-size:11px;font-weight:700;cursor:pointer;">📥 Nhập</button>
+    <button onclick="openSettingsModal()" style="padding:4px 12px;background:#5C3D00;border:none;border-radius:20px;color:#EDD98A;font-size:11px;font-weight:700;cursor:pointer;">⚙ Cài đặt</button>
     <input type="file" id="import-file" accept=".json" style="display:none" onchange="importData(this)"/>
-    <button id="btn-reset" onclick="resetAll()" style="padding:4px 12px;background:transparent;border:1px solid rgba(255,255,255,.3);border-radius:20px;color:#EDD98A;font-size:10px;cursor:pointer;opacity:.7;">🗑 Xóa</button>
   </div>
 </div>
 <div id="tabs">
@@ -247,6 +245,44 @@ window.onerror = function(msg, src, line, col, err) {
 #sync-conflict-box{display:none;margin-top:12px;padding:12px;border:1.5px solid #c0503e;border-radius:10px;background:#ffece8}
 #sync-conflict-text{font-size:12.5px;line-height:1.55;color:#4a1c12}
 </style>
+<div id="settings-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:200;align-items:flex-start;justify-content:center;padding:6vh 14px 0;overflow-y:auto" onclick="if(event.target===this)closeSettingsModal()">
+  <div style="background:#FFF8E7;color:#3d2a00;border-radius:16px;padding:18px;width:100%;max-width:400px;box-shadow:0 12px 40px rgba(0,0,0,.35);margin-bottom:6vh">
+    <h3 style="margin:0 0 12px;font-size:17px">⚙ Cài đặt</h3>
+    <div style="border:1.5px solid #C9A54A;border-radius:12px;padding:12px;margin-bottom:10px">
+      <div style="font-weight:800;font-size:13.5px;margin-bottom:6px">☁️ Đồng bộ nhiều thiết bị</div>
+      <div id="set-sync-status" style="font-size:12px;color:#7a5c1e;margin-bottom:8px"></div>
+      <button style="width:100%;padding:10px;border:none;border-radius:10px;background:#8B6914;color:#FFF8E7;font-weight:700;font-size:13px;cursor:pointer" onclick="closeSettingsModal();openSyncModal()">Mở đồng bộ đám mây</button>
+    </div>
+    <div style="border:1.5px solid #C9A54A;border-radius:12px;padding:12px;margin-bottom:10px">
+      <div style="font-weight:800;font-size:13.5px;margin-bottom:6px">Xuất / Nhập dữ liệu</div>
+      <div style="display:flex;gap:8px">
+        <button style="flex:1;padding:10px;border:none;border-radius:10px;background:#EDD98A;color:#5C3D00;font-weight:700;font-size:13px;cursor:pointer" onclick="exportData()">📤 Xuất (JSON)</button>
+        <button style="flex:1;padding:10px;border:none;border-radius:10px;background:#EDD98A;color:#5C3D00;font-weight:700;font-size:13px;cursor:pointer" onclick="document.getElementById('import-file').click()">📥 Nhập (JSON)</button>
+      </div>
+    </div>
+    <div style="border:1.5px solid #C9A54A;border-radius:12px;padding:12px;margin-bottom:10px">
+      <div style="font-weight:800;font-size:13.5px;margin-bottom:6px">💾 Sao lưu định kỳ lên đám mây</div>
+      <div style="font-size:12px;color:#7a5c1e;margin-bottom:8px">Tự động lưu một bản chụp dữ liệu theo chu kỳ (giữ 4 bản gần nhất). Cần đang bật Đồng bộ.</div>
+      <div style="display:flex;gap:6px;margin-bottom:8px">
+        <button class="bk-freq" data-f="off" style="flex:1;padding:8px 4px;border:1px solid #C9A54A;border-radius:10px;background:#fff;color:#5C3D00;font-weight:700;font-size:12px;cursor:pointer" onclick="bkSetFreq('off')">Tắt</button>
+        <button class="bk-freq" data-f="d" style="flex:1;padding:8px 4px;border:1px solid #C9A54A;border-radius:10px;background:#fff;color:#5C3D00;font-weight:700;font-size:12px;cursor:pointer" onclick="bkSetFreq('d')">Ngày</button>
+        <button class="bk-freq" data-f="w" style="flex:1;padding:8px 4px;border:1px solid #C9A54A;border-radius:10px;background:#fff;color:#5C3D00;font-weight:700;font-size:12px;cursor:pointer" onclick="bkSetFreq('w')">Tuần</button>
+        <button class="bk-freq" data-f="m" style="flex:1;padding:8px 4px;border:1px solid #C9A54A;border-radius:10px;background:#fff;color:#5C3D00;font-weight:700;font-size:12px;cursor:pointer" onclick="bkSetFreq('m')">Tháng</button>
+      </div>
+      <div id="bk-status" style="font-size:12px;color:#7a5c1e;margin-bottom:8px"></div>
+      <div style="display:flex;gap:8px">
+        <button style="flex:1;padding:10px;border:none;border-radius:10px;background:#8B6914;color:#FFF8E7;font-weight:700;font-size:13px;cursor:pointer" onclick="bkNow(true)">💾 Sao lưu ngay</button>
+        <button style="flex:1;padding:10px;border:none;border-radius:10px;background:#EDD98A;color:#5C3D00;font-weight:700;font-size:13px;cursor:pointer" onclick="bkShowList()">🕘 Bản sao lưu</button>
+      </div>
+      <div id="bk-list" style="margin-top:8px"></div>
+    </div>
+    <div style="border:1.5px solid #c0503e;border-radius:12px;padding:12px;margin-bottom:12px">
+      <div style="font-weight:800;font-size:13.5px;margin-bottom:6px;color:#8a2f18">Vùng nguy hiểm</div>
+      <button style="width:100%;padding:10px;border:1px solid #c0503e;border-radius:10px;background:#fff;color:#8a2f18;font-weight:700;font-size:13px;cursor:pointer" onclick="resetAll()">🗑 Xóa toàn bộ dữ liệu</button>
+    </div>
+    <button style="width:100%;padding:11px;border:none;border-radius:10px;background:#EDD98A;color:#5C3D00;font-weight:700;font-size:14px;cursor:pointer" onclick="closeSettingsModal()">Đóng</button>
+  </div>
+</div>
 <div id="sync-modal" onclick="if(event.target===this)closeSyncModal()">
   <div class="box">
     <h3>☁️ Đồng bộ nhiều thiết bị</h3>
@@ -1175,6 +1211,86 @@ function queueCloudSave(){
   syncTimer=setTimeout(pushToCloud,800);
 }
 function initSync(){ updateSyncBtn(); if(syncCode&&initFirebase()) connectSync(syncCode,true); }
+// ==== CÀI ĐẶT + SAO LƯU ĐỊNH KỲ ====
+function openSettingsModal(){
+  const st=document.getElementById('set-sync-status');
+  if(st) st.textContent = syncCode ? ('Đang đồng bộ — mã: '+syncCode) : 'Chưa kết nối đồng bộ.';
+  bkRefreshUI();
+  document.getElementById('bk-list').innerHTML='';
+  document.getElementById('settings-modal').style.display='flex';
+}
+function closeSettingsModal(){ document.getElementById('settings-modal').style.display='none'; }
+function bkFreq(){ try{ return localStorage.getItem('cd_bk_freq')||'off'; }catch(e){ return 'off'; } }
+function bkLast(){ try{ return parseInt(localStorage.getItem('cd_bk_last')||'0',10)||0; }catch(e){ return 0; } }
+function bkMs(f){ return f==='d'?86400000 : f==='w'?604800000 : f==='m'?2592000000 : 0; }
+function bkFreqLabel(f){ return f==='d'?'hàng ngày' : f==='w'?'hàng tuần' : f==='m'?'hàng tháng' : 'đang tắt'; }
+function bkSetFreq(f){
+  try{ localStorage.setItem('cd_bk_freq',f); }catch(e){}
+  bkRefreshUI();
+  if(f!=='off') bkCheckAuto();
+}
+function bkRefreshUI(){
+  const f=bkFreq();
+  document.querySelectorAll('.bk-freq').forEach(function(b){
+    const on=b.getAttribute('data-f')===f;
+    b.style.background=on?'#8B6914':'#fff'; b.style.color=on?'#FFF8E7':'#5C3D00';
+  });
+  const st=document.getElementById('bk-status');
+  if(st){
+    const l=bkLast();
+    st.textContent='Chu kỳ: '+bkFreqLabel(f)+(l?(' · Lần gần nhất: '+new Date(l).toLocaleString('vi-VN')):' · Chưa sao lưu lần nào');
+  }
+}
+function bkDocRef(){ return fbDb.collection('syncs').doc('CD-'+syncCode+'-BK'); }
+function bkNow(manual){
+  if(!syncCode||!fbDb){ if(manual)toast('Cần bật Đồng bộ đám mây trước (nút ☁️)'); return; }
+  const day=new Date().toISOString().slice(0,10);
+  bkDocRef().get().then(function(doc){
+    const sn=(doc.exists&&doc.data().snapshots)||{};
+    sn[day]=packState();
+    const ks=Object.keys(sn).sort();
+    while(ks.length>4){ delete sn[ks.shift()]; }
+    return bkDocRef().set({snapshots:sn,updatedAt:Date.now()});
+  }).then(function(){
+    try{ localStorage.setItem('cd_bk_last',String(Date.now())); }catch(e){}
+    toast('✓ Đã sao lưu lên đám mây ('+day+')');
+    bkRefreshUI();
+  }).catch(function(e){ toast('Lỗi sao lưu: '+(e&&e.message||e)); });
+}
+function bkCheckAuto(){
+  const f=bkFreq(); if(f==='off')return;
+  if(Date.now()-bkLast() < bkMs(f)) return;
+  if(syncCode&&fbDb) bkNow(false);
+  else toast('⏰ Đến hạn sao lưu định kỳ — hãy bật Đồng bộ đám mây hoặc Xuất file trong ⚙ Cài đặt');
+}
+function bkShowList(){
+  if(!syncCode||!fbDb){ toast('Cần bật Đồng bộ đám mây trước'); return; }
+  const box=document.getElementById('bk-list');
+  box.innerHTML='<div style="font-size:12px;color:#7a5c1e">Đang tải…</div>';
+  bkDocRef().get().then(function(doc){
+    const sn=(doc.exists&&doc.data().snapshots)||{};
+    const ks=Object.keys(sn).sort().reverse();
+    if(!ks.length){ box.innerHTML='<div style="font-size:12px;color:#7a5c1e">Chưa có bản sao lưu nào.</div>'; return; }
+    box.innerHTML=ks.map(function(d){
+      let n=0; try{ n=dataSummary(JSON.parse(sn[d])).slots; }catch(e){}
+      return '<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-top:1px solid rgba(139,105,20,.25)">'+
+        '<span style="flex:1;font-size:13px">📅 '+d+' <span style="color:#7a5c1e;font-size:11px">('+n+' mục)</span></span>'+
+        '<button style="padding:6px 12px;border:1px solid #C9A54A;border-radius:8px;background:#fff;color:#5C3D00;font-size:12px;font-weight:700;cursor:pointer" onclick="bkRestore(\''+d+'\')">Khôi phục</button></div>';
+    }).join('');
+  }).catch(function(e){ box.innerHTML=''; toast('Lỗi: '+(e&&e.message||e)); });
+}
+function bkRestore(day){
+  if(!confirm('Khôi phục dữ liệu từ bản sao lưu ngày '+day+'?\nDữ liệu hiện tại trên máy VÀ trên đám mây sẽ bị thay thế bằng bản này.'))return;
+  bkDocRef().get().then(function(doc){
+    const sn=(doc.exists&&doc.data().snapshots)||{};
+    if(!sn[day]){ toast('Không tìm thấy bản sao lưu'); return; }
+    let st=null; try{ st=JSON.parse(sn[day]); }catch(e){ toast('Bản sao lưu bị lỗi'); return; }
+    applyRemote(st, Date.now());
+    pushToCloud();
+    toast('✓ Đã khôi phục bản sao lưu '+day);
+    closeSettingsModal();
+  }).catch(function(e){ toast('Lỗi: '+(e&&e.message||e)); });
+}
 async function requestPersist(){ try{ if(navigator.storage&&navigator.storage.persist){ await navigator.storage.persist(); } }catch(e){} }
 
 load();
@@ -1182,6 +1298,7 @@ showTab('thien');
 updateGrandTotal();
 initSync();
 requestPersist();
+setTimeout(bkCheckAuto, 4000);
 if('serviceWorker' in navigator){
   window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
 }
