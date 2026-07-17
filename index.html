@@ -132,6 +132,43 @@ input{padding:7px 10px;border:1px solid #D4B85A;border-radius:6px;background:#FF
 </style>
 </head>
 <body>
+<div id="home-screen" onclick="document.getElementById('home-screen').style.display='none'" style="position:fixed;inset:0;z-index:500;background:linear-gradient(170deg,#3a2600,#5C3D00 55%,#2e1e00);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;cursor:pointer;text-align:center;padding:24px">
+  <svg viewBox="0 0 220 200" style="width:190px;height:172px;filter:drop-shadow(0 8px 24px rgba(0,0,0,.4))" aria-label="Cư sĩ dâng hoa sen lên Đức Phật">
+    <circle cx="110" cy="100" r="96" fill="#FFF4D6"/>
+    <!-- hào quang -->
+    <circle cx="143" cy="58" r="26" fill="none" stroke="#C9A54A" stroke-width="3" opacity=".85"/>
+    <!-- Đức Phật ngồi trên đài sen (bên phải, cao hơn) -->
+    <g fill="#8B6914">
+      <circle cx="143" cy="58" r="12"/>
+      <path d="M143 69 C 126 72 120 88 118 104 C 117 116 125 122 143 122 C 161 122 169 116 168 104 C 166 88 160 72 143 69 Z"/>
+      <path d="M113 116 C 121 108 131 105 143 105 C 155 105 165 108 173 116 C 178 121 175 128 167 128 L 119 128 C 111 128 108 121 113 116 Z"/>
+    </g>
+    <ellipse cx="143" cy="99" rx="9" ry="4" fill="#E8C77F"/>
+    <!-- đài sen -->
+    <g fill="#C9A54A">
+      <path d="M112 130 Q 120 122 128 130 Q 135 121 143 130 Q 151 121 158 130 Q 166 122 174 130 L 170 138 L 116 138 Z"/>
+    </g>
+    <!-- Cư sĩ quỳ dâng sen (bên trái, thấp hơn) -->
+    <g fill="#A0752B">
+      <circle cx="63" cy="104" r="10"/>
+      <path d="M63 113 C 50 116 45 128 44 140 C 43 150 50 154 63 154 C 72 154 77 151 77 144 L 77 128 C 75 119 70 114 63 113 Z"/>
+      <!-- hai tay nâng lên phía Đức Phật -->
+      <path d="M70 122 C 79 114 89 108 99 105 L 102 112 C 93 116 84 122 77 130 Z"/>
+    </g>
+    <!-- đóa sen trên tay -->
+    <g>
+      <path d="M100 96 Q 104 86 108 96 Q 112 88 114 97 Q 118 90 119 98 Q 112 106 106 106 Q 100 106 96 99 Q 97 92 100 96 Z" fill="#D96C8B"/>
+      <path d="M96 100 Q 107 104 119 100 L 116 108 Q 107 111 99 108 Z" fill="#B8506F"/>
+    </g>
+    <!-- nền -->
+    <ellipse cx="110" cy="160" rx="70" ry="8" fill="#5C3D00" opacity=".2"/>
+  </svg>
+  <div>
+    <div style="font-size:30px;font-weight:800;color:#FFF8E7;letter-spacing:1px">CÚNG DƯỜNG</div>
+    <div style="font-size:14px;color:#EDD98A;margin-top:6px">Theo dõi thiện pháp — Phước báu tăng trưởng</div>
+  </div>
+  <div style="font-size:12px;color:#EDD98A;border:1px solid rgba(237,217,138,.5);border-radius:20px;padding:8px 18px">Chạm để vào</div>
+</div>
 <div id="debug" style="position:fixed;top:0;left:0;right:0;background:red;color:white;font-size:12px;padding:8px;z-index:9999;display:none;word-break:break-all;"></div>
 <script>
 window.onerror = function(msg, src, line, col, err) {
@@ -1156,9 +1193,23 @@ function connectSync(code,silent){
       attachSyncListener(ref); updateSyncBtn();
       if(!silent){ toast('✓ Đã kết nối'); closeSyncModal(); }
     }else{
-      pendingConflict={remoteST:remoteST,ref:ref};
-      updateSyncBtn();
-      openSyncModal();
+      const remoteUp=doc.data().updatedAt||0, localUp=cdUpdatedAt||0;
+      if(doc.data().payload===packState()){
+        stampLocal(Math.max(localUp,remoteUp));
+        attachSyncListener(ref); updateSyncBtn();
+        if(!silent){ toast('✓ Đã kết nối — dữ liệu hai bên giống nhau'); closeSyncModal(); }
+      }else if(remoteUp>localUp){
+        applyRemote(remoteST, remoteUp); attachSyncListener(ref); updateSyncBtn();
+        if(!silent){ toast('☁️ Đã nhận bản mới hơn từ đám mây'); closeSyncModal(); }
+      }else if(localUp>remoteUp){
+        pushToCloud(); attachSyncListener(ref); updateSyncBtn();
+        if(!silent){ toast('✓ Đã đẩy bản mới hơn của máy này lên đám mây'); closeSyncModal(); }
+      }else{
+        pendingConflict={remoteST:remoteST,ref:ref};
+        updateSyncBtn();
+        if(silent){ toast('⚠️ Dữ liệu máy và đám mây khác nhau — bấm ☁️ để chọn bên giữ lại'); }
+        else openSyncModal();
+      }
     }
   }).catch(function(err){
     console.error(err);
@@ -1219,11 +1270,12 @@ function pushToCloud(){
   fbDb.collection('syncs').doc('CD-'+syncCode).set({payload:packState(),updatedAt:cdUpdatedAt},{merge:true}).catch(function(e){console.error(e);syncErr('Lỗi ghi đám mây: '+(e&&e.message||e));});
 }
 function queueCloudSave(){
+  stampLocal();
   if(!syncCode||pendingConflict)return;
   clearTimeout(syncTimer);
   syncTimer=setTimeout(pushToCloud,800);
 }
-function initSync(){ updateSyncBtn(); if(syncCode&&initFirebase()) connectSync(syncCode,true); }
+function initSync(){ updateSyncBtn(); } // Không tự động kết nối khi mở app — bấm ☁️ để đồng bộ
 // ==== CÀI ĐẶT + SAO LƯU ĐỊNH KỲ ====
 function openSettingsModal(){
   const st=document.getElementById('set-sync-status');
