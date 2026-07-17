@@ -151,7 +151,6 @@ window.onerror = function(msg, src, line, col, err) {
   <div id="grand-total"></div>
   <div style="display:flex;justify-content:center;gap:6px;margin-top:6px;flex-wrap:wrap;">
     <button id="sync-btn" onclick="openSyncModal()" style="padding:4px 12px;background:#8B6914;border:none;border-radius:20px;color:#FFF8E7;font-size:11px;font-weight:700;cursor:pointer;">☁️ Đám mây</button>
-    <button onclick="syncData()" style="padding:4px 12px;background:#5C3D00;border:none;border-radius:20px;color:#EDD98A;font-size:11px;font-weight:700;cursor:pointer;">🔄 Làm mới</button>
     <button onclick="openSettingsModal()" style="padding:4px 12px;background:#5C3D00;border:none;border-radius:20px;color:#EDD98A;font-size:11px;font-weight:700;cursor:pointer;">⚙ Cài đặt</button>
     <input type="file" id="import-file" accept=".json" style="display:none" onchange="importData(this)"/>
   </div>
@@ -332,7 +331,7 @@ function load(){
 function saveData(){ localStorage.setItem(SK,JSON.stringify(data)); queueCloudSave(); }
 function saveCats(){ localStorage.setItem(CK,JSON.stringify(cats)); queueCloudSave(); }
 function saveThien(){ localStorage.setItem(TK,JSON.stringify(thien)); queueCloudSave(); }
-function syncData(){
+function cleanupData(){
   const validIds = cats.map(c=>c.id);
   let changed = false;
   Object.keys(data).forEach(mk=>{
@@ -345,10 +344,6 @@ function syncData(){
     });
   });
   if(changed) saveData();
-  renderMonth(); renderYear(); renderThien(); updateGrandTotal();
-  const btn = event.currentTarget;
-  btn.textContent='✓ Xong'; btn.style.background='#5C3D00';
-  setTimeout(()=>{ btn.textContent='🔄 Đồng bộ'; btn.style.background='#8B6914'; },1500);
 }
 function resetAll(){
   if(!confirm('⚠️ XÓA TOÀN BỘ dữ liệu cúng dường trên máy này?\nHãy bấm 📤 Xuất để lưu file dự phòng trước khi xóa!'))return;
@@ -1023,6 +1018,7 @@ function importData(input){
       cats = payload.cats || DEFAULT_CATS;
       thien = payload.thien || {};
       saveData(); saveCats(); saveThien();
+      cleanupData();
       renderAll();
       alert('Nhập thành công! Đã khôi phục dữ liệu từ ' + (payload.exported||'file').slice(0,10));
     } catch(err){
@@ -1297,6 +1293,7 @@ function bkRestore(day){
 async function requestPersist(){ try{ if(navigator.storage&&navigator.storage.persist){ await navigator.storage.persist(); } }catch(e){} }
 
 load();
+cleanupData();
 (function(){
   let t='thien';
   try{
