@@ -1008,6 +1008,11 @@ const firebaseConfig = {
 let fbDb=null,syncUnsub=null,syncCode='',syncEcho=false,syncTimer=null,pendingConflict=null,cdUpdatedAt=0;
 try{ syncCode=localStorage.getItem('cd_sync_code')||''; }catch(e){}
 try{ cdUpdatedAt=parseInt(localStorage.getItem('cd_updated_at')||'0',10)||0; }catch(e){}
+function syncErr(msg){
+  const st=document.getElementById('sync-status');
+  if(st){ st.textContent=msg; st.style.color='#b3261e'; }
+  toast(msg);
+}
 function toast(msg){ const t=document.getElementById('cd-toast'); if(!t){alert(msg);return;} t.textContent=msg; t.classList.add('on'); clearTimeout(toast._t); toast._t=setTimeout(function(){t.classList.remove('on');},2600); }
 function fbConfigured(){ return !!(firebaseConfig.apiKey && firebaseConfig.projectId); }
 function initFirebase(){
@@ -1059,6 +1064,7 @@ function genSyncCode(){
   document.getElementById('sync-code-input').value=c;
 }
 function openSyncModal(){
+  const st=document.getElementById('sync-status'); if(st) st.style.color='';
   document.getElementById('sync-code-input').value=syncCode;
   const box=document.getElementById('sync-conflict-box');
   if(pendingConflict){
@@ -1076,11 +1082,12 @@ function closeSyncModal(){ document.getElementById('sync-modal').classList.remov
 function connectSync(code,silent){
   code=(code||'').trim().toUpperCase();
   if(!code){ if(!silent)toast('Nhập hoặc tạo mã trước'); return; }
-  if(!initFirebase()){ if(!silent)toast('⚠️ Không tải được Firebase — kiểm tra mạng'); return; }
+  if(!initFirebase()){ syncErr('⚠️ Không tải được Firebase — kiểm tra kết nối mạng rồi thử lại'); return; }
+  const st0=document.getElementById('sync-status'); if(st0){ st0.style.color=''; st0.textContent='Đang kết nối…'; }
   syncCode=code; try{localStorage.setItem('cd_sync_code',syncCode);}catch(e){}
   if(syncUnsub){ syncUnsub(); syncUnsub=null; }
   pendingConflict=null;
-  const ref=fbDb.collection('cd_syncs').doc(syncCode);
+  const ref=fbDb.collection('syncs').doc('CD-'+syncCode);
   ref.get().then(function(doc){
     if(!doc.exists){
       pushToCloud(); attachSyncListener(ref); updateSyncBtn();
@@ -1104,7 +1111,12 @@ function connectSync(code,silent){
       updateSyncBtn();
       openSyncModal();
     }
-  }).catch(function(err){ console.error(err); if(!silent)toast('Lỗi kết nối: '+err.message); });
+  }).catch(function(err){
+    console.error(err);
+    let m=(err&&err.message)||String(err);
+    if(err&&err.code==='permission-denied') m='Bị từ chối quyền (permission-denied) — cần mở quyền ghi trong Firestore Rules.';
+    syncErr('Lỗi kết nối: '+m);
+  });
 }
 function attachSyncListener(ref){
   syncUnsub=ref.onSnapshot(function(doc){
@@ -1123,7 +1135,7 @@ function attachSyncListener(ref){
     }
     applyRemote(remoteST, remote.updatedAt);
     toast('☁️ Đã nhận dữ liệu mới');
-  },function(err){ console.error(err); toast('Lỗi đồng bộ: '+err.message); });
+  },function(err){ console.error(err); syncErr('Lỗi đồng bộ: '+(err&&err.message||err)); });
 }
 function resolveKeepLocal(){
   if(!pendingConflict)return;
@@ -1155,7 +1167,7 @@ function pushToCloud(){
   if(!syncCode||!fbDb)return;
   stampLocal();
   syncEcho=true;
-  fbDb.collection('cd_syncs').doc(syncCode).set({payload:packState(),updatedAt:cdUpdatedAt},{merge:true}).catch(function(e){console.error(e);});
+  fbDb.collection('syncs').doc('CD-'+syncCode).set({payload:packState(),updatedAt:cdUpdatedAt},{merge:true}).catch(function(e){console.error(e);syncErr('Lỗi ghi đám mây: '+(e&&e.message||e));});
 }
 function queueCloudSave(){
   if(!syncCode||pendingConflict)return;
