@@ -25,7 +25,7 @@ input{padding:7px 10px;border:1px solid #D4B85A;border-radius:6px;background:#FF
 #btn-reset{margin-top:8px;padding:3px 14px;background:transparent;border:1px solid rgba(255,255,255,.3);border-radius:20px;color:#EDD98A;font-size:10px;cursor:pointer;opacity:.7;}
 #tabs{display:flex;background:#5C3D00;border-bottom:2px solid #8B6914;}
 #tabs button{flex:1;padding:11px 0;background:transparent;color:#C8A84B;border:none;cursor:pointer;font-size:12px;font-weight:700;border-bottom:2px solid transparent;margin-bottom:-2px;}
-#tabs button.active{background:#8B6914;color:#FFF8E7;border-bottom:2px solid #EDD98A;}
+#tabs button.active{background:linear-gradient(180deg,rgba(255,255,255,.35) 0%,rgba(255,255,255,.1) 30%,rgba(255,255,255,0) 60%),linear-gradient(180deg,#A07828 0%,#8B6914 55%,#6b4f0e 100%);color:#FFF8E7;border-bottom:2px solid #EDD98A;box-shadow:0 2px 0 rgba(255,255,255,.3) inset,0 -3px 6px rgba(40,28,3,.35) inset;text-shadow:0 1px 1px rgba(0,0,0,.3);}
 .nav-row{display:flex;align-items:center;justify-content:space-between;padding:13px 18px 10px;border-bottom:1px solid #E8D8A0;}
 .nav-title{text-align:center;}
 .nav-title h2{font-size:18px;font-weight:800;color:#5C3D00;font-family:Georgia,serif;}
@@ -55,7 +55,7 @@ input{padding:7px 10px;border:1px solid #D4B85A;border-radius:6px;background:#FF
 .cat-btns{margin-top:4px;}
 .cat-lbl{font-size:9px;color:#8B6914;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:5px;}
 .cat-row{display:flex;flex-wrap:wrap;gap:5px;}
-.cat-btn{padding:4px 9px;border-radius:16px;border:none;cursor:pointer;background:#EDD98A;color:#5C3D00;font-size:11px;font-weight:700;display:flex;align-items:center;gap:3px;}
+.cat-btn{padding:4px 9px;border-radius:16px;border:1px solid #C9A94A;cursor:pointer;background:linear-gradient(180deg,rgba(255,255,255,.8) 0%,rgba(255,255,255,0) 55%),linear-gradient(180deg,#F5E5A6 0%,#E5CB70 100%);color:#5C3D00;font-size:11px;font-weight:700;display:flex;align-items:center;gap:3px;box-shadow:0 2px 5px rgba(110,80,15,.2),0 1px 0 rgba(255,255,255,.8) inset,0 -2px 3px rgba(140,100,25,.18) inset;}
 .cat-btn.sel{background:#5C3D00;color:#FFF8E7;}
 .cat-clear{padding:4px 8px;border-radius:16px;border:1px dashed #D4B85A;cursor:pointer;background:transparent;color:#A0805A;font-size:10px;}
 .summary-box{margin:20px 16px 0;background:linear-gradient(135deg,#FDF0C0,#FAE89A);border:1px solid #C8A84B;border-radius:12px;padding:16px 18px;}
@@ -76,6 +76,7 @@ input{padding:7px 10px;border:1px solid #D4B85A;border-radius:6px;background:#FF
 .year-banner-text .val{font-size:28px;font-weight:800;color:#FFF8E7;font-family:Georgia,serif;margin-top:2px;}
 .month-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:8px 16px;}
 .month-card{border-radius:12px;padding:14px 16px;cursor:pointer;transition:transform .1s;}
+.month-card:active{transform:scale(.97);}
 .month-card:hover{transform:translateY(-2px);}
 .month-card .m-name{font-size:12px;color:#8B6914;font-weight:700;margin-bottom:2px;}
 .month-card .m-val{font-size:20px;font-weight:800;font-family:Georgia,serif;}
@@ -89,7 +90,7 @@ input{padding:7px 10px;border:1px solid #D4B85A;border-radius:6px;background:#FF
 .bar-x{font-size:7px;color:#A0805A;font-weight:600;margin-top:3px;}
 .thien-banner{margin:14px 16px 4px;background:linear-gradient(135deg,#5C3D00,#8B6914);border-radius:12px;padding:14px 18px;display:flex;align-items:center;gap:14px;box-shadow:0 4px 16px rgba(92,61,0,.25);}
 .thien-cats{padding:12px 16px 0;}
-.cat-card{margin-bottom:10px;border-radius:12px;border:1px solid #D4B85A;overflow:hidden;background:#FFFBF0;}
+.cat-card{margin-bottom:10px;border-radius:12px;border:1px solid #CDB262;overflow:hidden;background:linear-gradient(180deg,rgba(255,255,255,.85) 0%,rgba(255,255,255,0) 30%),linear-gradient(180deg,#FFFDF6 0%,#F8EFD2 100%);box-shadow:0 6px 12px rgba(110,80,15,.18),0 1px 0 rgba(255,255,255,.95) inset,0 -3px 6px rgba(150,110,30,.14) inset;}
 .cat-card-head{display:flex;align-items:center;gap:10px;padding:12px 14px;cursor:pointer;user-select:none;}
 .cat-card-head.open{background:#FDF0C0;}
 .cat-icon{font-size:22px;}
@@ -114,8 +115,10 @@ input{padding:7px 10px;border:1px solid #D4B85A;border-radius:6px;background:#FF
 .icon-btn{font-size:18px;padding:4px 7px;border-radius:7px;border:1px solid #E8D8A0;background:transparent;cursor:pointer;}
 .icon-btn.sel{border:2px solid #8B6914;background:#FDF0C0;}
 .form-btns{display:flex;gap:10px;margin-top:12px;}
-.btn-add{flex:1;padding:10px;background:#8B6914;color:#FFF8E7;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;}
-.btn-cancel{flex:1;padding:10px;background:#EDD98A;color:#5C3D00;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;}
+.btn-add{flex:1;padding:10px;background:linear-gradient(180deg,rgba(255,255,255,.45) 0%,rgba(255,255,255,.12) 28%,rgba(255,255,255,0) 55%),linear-gradient(180deg,#A88024 0%,#8B6914 55%,#664c0c 100%);color:#FFF8E7;border:1px solid #5a430b;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;box-shadow:0 4px 8px rgba(70,50,8,.35),0 1px 0 rgba(255,255,255,.4) inset,0 -3px 5px rgba(30,20,2,.3) inset;text-shadow:0 1px 1px rgba(0,0,0,.3);transition:transform .08s,box-shadow .08s;}
+.btn-add:active{transform:translateY(1.5px);box-shadow:0 1px 3px rgba(70,50,8,.3),0 2px 4px rgba(30,20,2,.3) inset;}
+.btn-cancel{flex:1;padding:10px;background:linear-gradient(180deg,rgba(255,255,255,.75) 0%,rgba(255,255,255,.2) 40%,rgba(255,255,255,0) 70%),linear-gradient(180deg,#F5E5A6 0%,#E5CB70 100%);color:#5C3D00;border:1px solid #C9A94A;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;box-shadow:0 3px 7px rgba(110,80,15,.22),0 1px 0 rgba(255,255,255,.8) inset,0 -2px 4px rgba(140,100,25,.22) inset;transition:transform .08s;}
+.btn-cancel:active{transform:translateY(1.5px);}
 #flash{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:999;background:linear-gradient(135deg,#5C3D00,#8B6914);color:#FFF8E7;border-radius:16px;padding:20px 32px;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,.3);display:none;pointer-events:none;}
 #flash .f-icon{font-size:36px;margin-bottom:8px;}
 #flash .f-label{font-size:13px;font-weight:700;}
@@ -291,13 +294,13 @@ window.onerror = function(msg, src, line, col, err) {
 </style>
 <div id="settings-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:200;align-items:flex-start;justify-content:center;padding:6vh 14px 0;overflow-y:auto" onclick="if(event.target===this)closeSettingsModal()">
   <div style="background:#FFF8E7;color:#3d2a00;border-radius:16px;padding:18px;width:100%;max-width:400px;box-shadow:0 12px 40px rgba(0,0,0,.35);margin-bottom:6vh">
-    <h3 style="margin:0 0 12px;font-size:17px">⚙ Cài đặt <span style="font-size:11px;font-weight:600;color:#7A6A45">· Phiên bản v11</span></h3>
-    <div style="border:1.5px solid #C9A54A;border-radius:12px;padding:12px;margin-bottom:10px">
+    <h3 style="margin:0 0 12px;font-size:17px">⚙ Cài đặt <span style="font-size:11px;font-weight:600;color:#7A6A45">· Phiên bản v12</span></h3>
+    <div style="border:1.5px solid #C9A54A;border-radius:12px;padding:12px;margin-bottom:10px;background:linear-gradient(180deg,rgba(255,255,255,.9) 0%,rgba(255,255,255,0) 40%),linear-gradient(180deg,#FFFDF4 0%,#F6EBC9 100%);box-shadow:0 5px 10px rgba(110,80,15,.20),0 1px 0 rgba(255,255,255,.95) inset,0 -3px 6px rgba(150,110,30,.16) inset;">
       <div style="font-weight:800;font-size:13.5px;margin-bottom:6px">☁️ Đồng bộ nhiều thiết bị</div>
       <div id="set-sync-status" style="font-size:12px;color:#7a5c1e;margin-bottom:8px"></div>
       <button style="width:100%;padding:10px;border:none;border-radius:10px;background:#8B6914;color:#FFF8E7;font-weight:700;font-size:13px;cursor:pointer" onclick="closeSettingsModal();openSyncModal()">Mở đồng bộ đám mây</button>
     </div>
-    <div style="border:1.5px solid #C9A54A;border-radius:12px;padding:12px;margin-bottom:10px">
+    <div style="border:1.5px solid #C9A54A;border-radius:12px;padding:12px;margin-bottom:10px;background:linear-gradient(180deg,rgba(255,255,255,.9) 0%,rgba(255,255,255,0) 40%),linear-gradient(180deg,#FFFDF4 0%,#F6EBC9 100%);box-shadow:0 5px 10px rgba(110,80,15,.20),0 1px 0 rgba(255,255,255,.95) inset,0 -3px 6px rgba(150,110,30,.16) inset;">
       <div style="font-weight:800;font-size:13.5px;margin-bottom:6px">Xuất / Nhập dữ liệu</div>
       <div style="display:flex;gap:8px">
         <button style="flex:1;padding:10px;border:none;border-radius:10px;background:#EDD98A;color:#5C3D00;font-weight:700;font-size:13px;cursor:pointer" onclick="exportJSON()">📄 Xuất JSON</button>
@@ -307,7 +310,7 @@ window.onerror = function(msg, src, line, col, err) {
         <button style="flex:1;padding:10px;border:none;border-radius:10px;background:#EDD98A;color:#5C3D00;font-weight:700;font-size:13px;cursor:pointer" onclick="document.getElementById('import-file').click()">📥 Nhập dữ liệu (JSON)</button>
       </div>
     </div>
-    <div style="border:1.5px solid #C9A54A;border-radius:12px;padding:12px;margin-bottom:10px">
+    <div style="border:1.5px solid #C9A54A;border-radius:12px;padding:12px;margin-bottom:10px;background:linear-gradient(180deg,rgba(255,255,255,.9) 0%,rgba(255,255,255,0) 40%),linear-gradient(180deg,#FFFDF4 0%,#F6EBC9 100%);box-shadow:0 5px 10px rgba(110,80,15,.20),0 1px 0 rgba(255,255,255,.95) inset,0 -3px 6px rgba(150,110,30,.16) inset;">
       <div style="font-weight:800;font-size:13.5px;margin-bottom:6px">💾 Sao lưu định kỳ lên đám mây</div>
       <div style="font-size:12px;color:#7a5c1e;margin-bottom:8px">Tự động lưu một bản chụp dữ liệu theo chu kỳ (giữ 4 bản gần nhất). Cần đang bật Đồng bộ.</div>
       <div style="display:flex;gap:6px;margin-bottom:8px">
@@ -323,7 +326,7 @@ window.onerror = function(msg, src, line, col, err) {
       </div>
       <div id="bk-list" style="margin-top:8px"></div>
     </div>
-    <div style="border:1.5px solid #C9A54A;border-radius:12px;padding:12px;margin-bottom:12px">
+    <div style="border:1.5px solid #C9A54A;border-radius:12px;padding:12px;margin-bottom:12px;background:linear-gradient(180deg,rgba(255,255,255,.9) 0%,rgba(255,255,255,0) 40%),linear-gradient(180deg,#FFFDF4 0%,#F6EBC9 100%);box-shadow:0 5px 10px rgba(110,80,15,.20),0 1px 0 rgba(255,255,255,.95) inset,0 -3px 6px rgba(150,110,30,.16) inset;">
       <div style="font-weight:800;font-size:13.5px;margin-bottom:6px">🔒 Mật khẩu mở app</div>
       <p id="pass-status" style="font-size:12px;color:#7A6A45;margin:0 0 10px"></p>
       <div style="display:flex;gap:8px">
@@ -681,7 +684,7 @@ function renderYear(){
   document.getElementById('month-grid').innerHTML=Array.from({length:12},(_,i)=>{
     const mk=mKey(curYear,i), t=monthTotal(mk);
     const cnt=Object.keys(data[mk]||{}).filter(d=>dayTotal((data[mk]||{})[d])>0).length;
-    return `<div class="month-card" onclick="jumpToMonth(${i})" style="background:${t>0?'linear-gradient(135deg,#FFF8E7,#FDF0C0)':'#FAF7EF'};border:1px solid ${t>0?'#D4B85A':'#E8D8A0'};box-shadow:${t>0?'0 2px 8px rgba(139,105,20,0.12)':'none'}"><div class="m-name">${MONTHS_VN[i]}</div><div class="m-val" style="color:${t>0?'#5C3D00':'#C8A84B'}">${t>0?fmtVND(t):'—'}</div>${cnt>0?`<div class="m-days">${cnt} ngày</div>`:''}</div>`;
+    return `<div class="month-card" onclick="jumpToMonth(${i})" style="background:${t>0?'linear-gradient(180deg,rgba(255,255,255,.92) 0%,rgba(255,255,255,0) 42%),linear-gradient(180deg,#FFF8E7 0%,#F3E19E 100%)':'linear-gradient(180deg,rgba(255,255,255,.8) 0%,rgba(255,255,255,0) 45%),linear-gradient(180deg,#FCFAF3 0%,#EFE9D8 100%)'};border:1px solid ${t>0?'#C9A94A':'#DDD2B0'};box-shadow:${t>0?'0 6px 12px rgba(110,80,15,.24),0 1px 0 rgba(255,255,255,.95) inset,0 -3px 6px rgba(150,110,30,.2) inset':'0 3px 7px rgba(110,80,15,.14),0 1px 0 rgba(255,255,255,.9) inset,0 -2px 4px rgba(150,110,30,.12) inset'}"><div class="m-name">${MONTHS_VN[i]}</div><div class="m-val" style="color:${t>0?'#5C3D00':'#C8A84B'}">${t>0?fmtVND(t):'—'}</div>${cnt>0?`<div class="m-days">${cnt} ngày</div>`:''}</div>`;
   }).join('');
 }
 function jumpToMonth(i){ curMonth=i; showTab('month'); }
