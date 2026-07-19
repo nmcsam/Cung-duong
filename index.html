@@ -146,36 +146,7 @@ input{padding:7px 10px;border:1px solid #D4B85A;border-radius:6px;background:#FF
   <div id="lock-err" style="font-size:12px;color:#ffd1c8;min-height:16px"></div>
 </div>
 <div id="home-screen" onclick="document.getElementById('home-screen').style.display='none'" style="position:fixed;inset:0;z-index:500;background:linear-gradient(170deg,#3a2600,#5C3D00 55%,#2e1e00);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;cursor:pointer;text-align:center;padding:24px">
-  <svg viewBox="0 0 220 200" style="width:190px;height:172px;filter:drop-shadow(0 8px 24px rgba(0,0,0,.4))" aria-label="Cư sĩ dâng hoa sen lên Đức Phật">
-    <circle cx="110" cy="100" r="96" fill="#FFF4D6"/>
-    <!-- hào quang -->
-    <circle cx="143" cy="58" r="26" fill="none" stroke="#C9A54A" stroke-width="3" opacity=".85"/>
-    <!-- Đức Phật ngồi trên đài sen (bên phải, cao hơn) -->
-    <g fill="#8B6914">
-      <circle cx="143" cy="58" r="12"/>
-      <path d="M143 69 C 126 72 120 88 118 104 C 117 116 125 122 143 122 C 161 122 169 116 168 104 C 166 88 160 72 143 69 Z"/>
-      <path d="M113 116 C 121 108 131 105 143 105 C 155 105 165 108 173 116 C 178 121 175 128 167 128 L 119 128 C 111 128 108 121 113 116 Z"/>
-    </g>
-    <ellipse cx="143" cy="99" rx="9" ry="4" fill="#E8C77F"/>
-    <!-- đài sen -->
-    <g fill="#C9A54A">
-      <path d="M112 130 Q 120 122 128 130 Q 135 121 143 130 Q 151 121 158 130 Q 166 122 174 130 L 170 138 L 116 138 Z"/>
-    </g>
-    <!-- Cư sĩ quỳ dâng sen (bên trái, thấp hơn) -->
-    <g fill="#A0752B">
-      <circle cx="63" cy="104" r="10"/>
-      <path d="M63 113 C 50 116 45 128 44 140 C 43 150 50 154 63 154 C 72 154 77 151 77 144 L 77 128 C 75 119 70 114 63 113 Z"/>
-      <!-- hai tay nâng lên phía Đức Phật -->
-      <path d="M70 122 C 79 114 89 108 99 105 L 102 112 C 93 116 84 122 77 130 Z"/>
-    </g>
-    <!-- đóa sen trên tay -->
-    <g>
-      <path d="M100 96 Q 104 86 108 96 Q 112 88 114 97 Q 118 90 119 98 Q 112 106 106 106 Q 100 106 96 99 Q 97 92 100 96 Z" fill="#D96C8B"/>
-      <path d="M96 100 Q 107 104 119 100 L 116 108 Q 107 111 99 108 Z" fill="#B8506F"/>
-    </g>
-    <!-- nền -->
-    <ellipse cx="110" cy="160" rx="70" ry="8" fill="#5C3D00" opacity=".2"/>
-  </svg>
+  <img src="icon-lion-512.png" alt="Cúng Dường" style="width:190px;height:190px;border-radius:30px;box-shadow:0 12px 36px rgba(0,0,0,.45),0 2px 0 rgba(255,255,255,.25) inset;border:2px solid rgba(237,217,138,.65)">
   <div>
     <div style="font-size:30px;font-weight:800;color:#FFF8E7;letter-spacing:1px">CÚNG DƯỜNG</div>
     <div style="font-size:14px;color:#EDD98A;margin-top:6px">Theo dõi thiện pháp — Phước báu tăng trưởng</div>
@@ -296,7 +267,7 @@ window.onerror = function(msg, src, line, col, err) {
 </style>
 <div id="settings-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:200;align-items:flex-start;justify-content:center;padding:6vh 14px 0;overflow-y:auto" onclick="if(event.target===this)closeSettingsModal()">
   <div style="background:#FFF8E7;color:#3d2a00;border-radius:16px;padding:18px;width:100%;max-width:400px;box-shadow:0 12px 40px rgba(0,0,0,.35);margin-bottom:6vh">
-    <h3 style="margin:0 0 12px;font-size:17px">⚙ Cài đặt <span style="font-size:11px;font-weight:600;color:#7A6A45">· Phiên bản v14</span></h3>
+    <h3 style="margin:0 0 12px;font-size:17px">⚙ Cài đặt <span style="font-size:11px;font-weight:600;color:#7A6A45">· Phiên bản v15</span></h3>
     <div style="border:1.5px solid #C9A54A;border-radius:12px;padding:12px;margin-bottom:10px;background:linear-gradient(180deg,rgba(255,255,255,.9) 0%,rgba(255,255,255,0) 40%),linear-gradient(180deg,#FFFDF4 0%,#F6EBC9 100%);box-shadow:0 5px 10px rgba(110,80,15,.20),0 1px 0 rgba(255,255,255,.95) inset,0 -3px 6px rgba(150,110,30,.16) inset;">
       <div style="font-weight:800;font-size:13.5px;margin-bottom:6px">☁️ Đồng bộ nhiều thiết bị</div>
       <div id="set-sync-status" style="font-size:12px;color:#7a5c1e;margin-bottom:8px"></div>
