@@ -79,26 +79,6 @@ input{padding:7px 10px;border:1px solid #D4B85A;border-radius:6px;background:#FF
 .cal-d.today{box-shadow:0 0 0 2px #2e7d32 inset;}
 .cal-d.sel{background:#8B6914;border:2px solid #5C3D00;}
 .cal-d.sel .n{color:#FFF8E7;} .cal-d.sel .a{color:#EDD98A;}
-/* ── Nhật ký ── */
-.jr{padding:6px 12px 0;}
-.jr-head{display:flex;align-items:center;justify-content:space-between;padding:8px 2px;font-size:14px;font-weight:800;color:#5C3D00;}
-.jr-add{padding:6px 14px;border:none;border-radius:16px;background:#2e7d32;color:#fff;font-size:12.5px;font-weight:800;cursor:pointer;}
-.jr-empty{text-align:center;color:#A0805A;font-size:13px;line-height:1.6;padding:22px 10px;border:1.5px dashed #E0CC8A;border-radius:12px;background:#FFFBF0;}
-.jr-day{background:#FFFDF6;border:1px solid #E3CE88;border-radius:12px;margin-bottom:10px;overflow:hidden;box-shadow:0 2px 6px rgba(110,80,15,.08);transition:box-shadow .3s;}
-.jr-day.sel,.jr-day.flash{box-shadow:0 0 0 2.5px #8B6914;}
-.jr-dh{display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:#FDF0C0;font-size:13px;font-weight:800;color:#5C3D00;}
-.jr-dh small{font-weight:600;color:#8B6914;}
-.jr-row{display:flex;align-items:center;gap:10px;padding:10px 6px 10px 12px;border-top:1px dashed #EADBA6;cursor:pointer;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;}
-.jr-row:first-of-type{border-top:none;}
-.jr-row:active{background:#FFF4D2;}
-.jr-ic{font-size:22px;width:30px;text-align:center;flex-shrink:0;}
-.jr-tx{flex:1;min-width:0;}
-.jr-cat{font-size:13.5px;font-weight:700;color:#5C3D00;}
-.jr-cat.none{color:#B07A2A;font-style:italic;}
-.jr-sub{font-size:12px;color:#8a7350;margin-top:2px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;white-space:pre-line;}
-.jr-amt{font-size:14px;font-weight:800;color:#5C3D00;white-space:nowrap;}
-.jr-rep{flex-shrink:0;width:34px;height:34px;border-radius:50%;border:1px solid #D4B85A;background:#FFF8E7;color:#8B6914;font-size:17px;font-weight:800;cursor:pointer;}
-.jr-rep:active{background:#EDD98A;}
 /* ── Nút ➕ nổi ── */
 #fab{position:fixed;right:18px;bottom:calc(22px + env(safe-area-inset-bottom));z-index:150;width:62px;height:62px;border-radius:50%;border:none;background:linear-gradient(180deg,#43a047,#2e7d32);color:#fff;font-size:34px;font-weight:400;line-height:1;cursor:pointer;box-shadow:0 6px 18px rgba(30,80,30,.45),0 2px 0 rgba(255,255,255,.35) inset;}
 #fab:active{transform:scale(.94);}
@@ -142,6 +122,65 @@ textarea.en-in{min-height:84px;resize:none;line-height:1.5;}
 .en-btns .del{width:52px;flex:none;background:#fff;border:1.5px solid #F3B8B0;color:#c62828;}
 .en-btns .cancel{flex:1;background:#EDD98A;color:#5C3D00;}
 .en-btns .ok{flex:2;background:#2e7d32;color:#fff;}
+/* ── Tổng kết tháng: danh sách theo ngày ── */
+.ms-empty{text-align:center;color:#8B6914;font-size:13px;line-height:1.6;padding:14px 6px;}
+.ms-list{margin-top:12px;border-top:1px solid #D4B85A;}
+.ms-row{display:flex;flex-wrap:wrap;align-items:center;gap:6px;padding:8px 0;border-top:1px dashed #E2CC84;transition:background .4s;}
+.ms-row.nd{border-top:1px solid #D4B85A;}
+.ms-list .ms-row:first-child{border-top:none;}
+.ms-row.hl,.ms-row.flash{background:rgba(255,255,255,.55);border-radius:8px;}
+.ms-day{width:34px;flex-shrink:0;text-align:center;line-height:1.1;}
+.ms-day b{display:block;font-size:15px;color:#5C3D00;}
+.ms-day small{font-size:9px;color:#8B6914;font-weight:700;}
+.ms-main{flex:1;min-width:0;cursor:pointer;}
+.ms-sub{font-size:12.5px;color:#5C3D00;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;}
+.ms-sub i{color:#B09060;}
+.ms-amt{font-size:13.5px;font-weight:800;color:#5C3D00;margin-top:1px;}
+.ms-cat{flex-shrink:0;max-width:122px;padding:5px 8px;border:1px solid #C9A94A;border-radius:14px;background:#FFF8E7;color:#5C3D00;font-size:11.5px;font-weight:700;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.ms-cat.none{background:#fff;color:#B07A2A;border-style:dashed;}
+.ms-cat.open{background:#5C3D00;color:#FFF8E7;}
+.ms-rep{flex-shrink:0;width:30px;height:30px;border-radius:50%;border:1px solid #C9A94A;background:#FFF8E7;color:#8B6914;font-size:15px;font-weight:800;cursor:pointer;}
+.ms-pick{flex-basis:100%;display:flex;flex-wrap:wrap;gap:5px;padding:6px 0 2px 40px;}
+.ms-pick button{padding:6px 10px;border:1px solid #C9A94A;border-radius:14px;background:#FFFBF0;color:#5C3D00;font-size:12px;font-weight:700;cursor:pointer;}
+.ms-pick button.sel{background:#5C3D00;color:#FFF8E7;}
+.ms-hint{font-size:10.5px;color:#8B6914;text-align:center;margin-top:8px;opacity:.85;}
+.ms-catbtn{width:100%;margin-top:12px;padding:10px;border:1px solid #C9A94A;border-radius:10px;background:#FFF8E7;color:#5C3D00;font-size:13px;font-weight:800;cursor:pointer;}
+.ms-catbtn.open{background:#8B6914;color:#FFF8E7;}
+.ms-cats{margin-top:8px;}
+.ms-cs{display:grid;grid-template-columns:minmax(0,1fr) 60px auto;align-items:center;gap:8px;padding:5px 0;font-size:13px;color:#5C3D00;font-weight:600;}
+.ms-cs b{font-weight:800;}
+.ms-cs .bar,.th-row .bar{height:6px;border-radius:3px;background:rgba(139,105,20,.15);overflow:hidden;display:block;}
+.ms-cs .bar i,.th-row .bar i{display:block;height:100%;background:#8B6914;border-radius:3px;}
+/* ── Thiện Pháp gọn ── */
+.th-banner{margin:12px 16px 4px;background:linear-gradient(135deg,#5C3D00,#8B6914);border-radius:12px;padding:10px 14px;display:flex;justify-content:space-between;align-items:center;box-shadow:0 3px 10px rgba(92,61,0,.25);}
+.th-banner .l{font-size:10px;color:#EDD98A;font-weight:700;letter-spacing:.06em;text-transform:uppercase;}
+.th-banner .v{font-size:20px;font-weight:800;color:#FFF8E7;font-family:Georgia,serif;}
+.th-banner .v2{font-size:15px;font-weight:800;color:#FFF8E7;font-family:Georgia,serif;}
+.th-table{background:#FFFDF6;border:1px solid #D9C27A;border-radius:12px;overflow:hidden;box-shadow:0 2px 8px rgba(110,80,15,.1);}
+.th-h{display:flex;justify-content:space-between;padding:7px 12px;background:#FDF0C0;font-size:10.5px;font-weight:800;color:#8B6914;text-transform:uppercase;letter-spacing:.05em;}
+.th-cat{border-top:1px solid #EFE0B0;}
+.th-cat.open{background:#FFF8E2;}
+.th-row{display:flex;align-items:center;gap:9px;padding:8px 12px;cursor:pointer;user-select:none;}
+.th-row .ic{font-size:20px;width:26px;text-align:center;flex-shrink:0;}
+.th-row .nm{flex:1;min-width:0;font-size:14px;font-weight:700;color:#5C3D00;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.th-row .nm .bar{margin-top:4px;height:4px;}
+.th-row .am{font-size:13.5px;font-weight:800;color:#8B6914;text-align:right;white-space:nowrap;}
+.th-row .am small{display:block;font-size:10px;font-weight:700;color:#A0805A;}
+.th-row .ch{font-size:10px;color:#C8A84B;width:12px;text-align:center;}
+.th-cat.zero .nm,.th-cat.zero .am{color:#B8A274;}
+.th-body{padding:0 12px 8px 47px;}
+.th-mon{display:flex;align-items:center;gap:8px;padding:6px 0;border-top:1px dashed #E8D8A0;font-size:12.5px;color:#5C3D00;font-weight:700;cursor:pointer;}
+.th-mon small{flex:1;font-size:10.5px;color:#A0805A;font-weight:600;}
+.th-mon .ch{font-size:9px;color:#C8A84B;}
+.th-item{display:flex;align-items:baseline;gap:8px;padding:4px 0 4px 10px;font-size:12px;color:#6b4f1d;cursor:pointer;}
+.th-item .d{font-weight:700;color:#8B6914;white-space:nowrap;}
+.th-item .s{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-style:italic;}
+.th-item b{white-space:nowrap;color:#5C3D00;}
+.th-none{font-size:12px;color:#B8A274;padding:6px 0;}
+.th-foot{display:flex;justify-content:space-between;align-items:center;gap:6px;flex-wrap:wrap;border-top:1px dashed #E8D8A0;padding-top:7px;margin-top:2px;font-size:11.5px;color:#8B6914;}
+.th-foot button{margin-left:5px;padding:4px 10px;border:1px solid #D4B85A;border-radius:12px;background:#fff;color:#5C3D00;font-size:11.5px;font-weight:700;cursor:pointer;}
+.th-total{display:flex;justify-content:space-between;padding:9px 12px;background:#FDF0C0;border-top:1px solid #D9C27A;font-size:13px;font-weight:700;color:#5C3D00;}
+.th-total b{font-size:15px;font-family:Georgia,serif;}
 .lbl{display:block;font-size:10px;color:#8B6914;font-weight:700;margin-bottom:3px;text-transform:uppercase;letter-spacing:.04em;}
 .cat-btns{margin-top:4px;}
 .cat-lbl{font-size:9px;color:#8B6914;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:5px;}
@@ -398,7 +437,7 @@ window.onerror = function(msg, src, line, col, err) {
 </style>
 <div id="settings-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:200;align-items:flex-start;justify-content:center;padding:6vh 14px 0;overflow-y:auto" onclick="if(event.target===this)closeSettingsModal()">
   <div style="background:#FFF8E7;color:#3d2a00;border-radius:16px;padding:18px;width:100%;max-width:400px;box-shadow:0 12px 40px rgba(0,0,0,.35);margin-bottom:6vh">
-    <h3 style="margin:0 0 12px;font-size:17px">⚙ Cài đặt <span style="font-size:11px;font-weight:600;color:#7A6A45">· Phiên bản v19</span></h3>
+    <h3 style="margin:0 0 12px;font-size:17px">⚙ Cài đặt <span style="font-size:11px;font-weight:600;color:#7A6A45">· Phiên bản v20</span></h3>
     <div style="border:1.5px solid #C9A54A;border-radius:12px;padding:12px;margin-bottom:10px;background:linear-gradient(180deg,rgba(255,255,255,.9) 0%,rgba(255,255,255,0) 40%),linear-gradient(180deg,#FFFDF4 0%,#F6EBC9 100%);box-shadow:0 5px 10px rgba(110,80,15,.20),0 1px 0 rgba(255,255,255,.95) inset,0 -3px 6px rgba(150,110,30,.16) inset;">
       <div style="font-weight:800;font-size:13.5px;margin-bottom:6px">☁️ Đồng bộ nhiều thiết bị</div>
       <div id="set-sync-status" style="font-size:12px;color:#7a5c1e;margin-bottom:8px"></div>
@@ -606,55 +645,15 @@ function renderMonth(){
     h+=`<div class="${cls}" onclick="tapDay(${d})"><div class="n">${d}</div>${t>0?`<div class="a">${shortAmt(t)}</div>`:''}${icons?`<div class="i">${icons}</div>`:''}</div>`;
   }
   h+='</div>';
-  // Nhật ký: các ngày có khoản, mới nhất lên trên
-  const dayKeys=Object.keys(md).map(Number).filter(d=>dayEntries(mk,d).length).sort((a,b)=>b-a);
-  h+='<div class="jr">';
-  h+=`<div class="jr-head"><span>📖 Nhật ký ${MONTHS_VN[curMonth]}</span><button class="jr-add" onclick="openEntry(null,{y:${curYear},m:${curMonth},d:${isThisMonth?tp.d:(openDay||1)}})">＋ Ghi</button></div>`;
-  if(!dayKeys.length){
-    h+=`<div class="jr-empty">Chưa có khoản cúng dường nào trong tháng này.<br>Bấm nút <b>➕</b> để ghi khoản đầu tiên.</div>`;
-  }
-  dayKeys.forEach(d=>{
-    const es=dayEntries(mk,d), dt=dayTotal(md[d]);
-    const dow=WEEKDAYS_VN[new Date(curYear,curMonth,d).getDay()];
-    h+=`<div class="jr-day${openDay===d?' sel':''}" id="jrday-${d}">
-      <div class="jr-dh"><span>Ngày ${d} <small>· ${dow}</small></span><span>${fmtVND(dt)}</span></div>
-      ${es.map(e=>entryRowHTML(mk,d,e.idx,e.slot)).join('')}
-    </div>`;
-  });
-  h+='</div>';
   document.getElementById('day-list').innerHTML=h;
-  bindLongPress(document.getElementById('day-list'));
   renderMonthSummary(mk,md,tot,cnt);
   updateGrandTotal();
-}
-function entryRowHTML(mk,d,idx,slot){
-  const c=cats.find(c=>c.id===slot.catId), amt=parseAmt(slot.amount);
-  const sub=[slot.place,slot.note].map(x=>(x||'').trim()).filter(Boolean).map(escTxt).join(' · ');
-  return `<div class="jr-row" data-mk="${mk}" data-d="${d}" data-i="${idx}" onclick="openEntry({mk:'${mk}',d:${d},i:'${idx}'})">
-    <div class="jr-ic">${c?c.icon:'❔'}</div>
-    <div class="jr-tx"><div class="jr-cat${c?'':' none'}">${c?escTxt(c.name):'Chưa phân loại'}</div>${sub?`<div class="jr-sub">${sub}</div>`:''}</div>
-    <div class="jr-amt">${amt?fmtVND(amt):''}</div>
-    <button class="jr-rep" title="Lặp lại cho hôm nay" onclick="event.stopPropagation();repeatEntry('${mk}',${d},'${idx}')">↻</button>
-  </div>`;
 }
 function tapDay(d){
   const mk=mKey(curYear,curMonth);
   if(!dayEntries(mk,d).length){ openEntry(null,{y:curYear,m:curMonth,d}); return; }
   openDay=(openDay===d)?null:d; renderMonth();
-  if(openDay) setTimeout(()=>{ const el=document.getElementById('jrday-'+d); if(el) el.scrollIntoView({behavior:'smooth',block:'center'}); },50);
-}
-// Giữ lâu một dòng để xóa
-function bindLongPress(root){
-  root.querySelectorAll('.jr-row').forEach(row=>{
-    let t=null, fired=false;
-    const start=()=>{ fired=false; t=setTimeout(()=>{ fired=true; if(navigator.vibrate) navigator.vibrate(30); deleteEntry(row.dataset.mk,+row.dataset.d,row.dataset.i); },600); };
-    const cancel=()=>{ clearTimeout(t); };
-    row.addEventListener('touchstart',start,{passive:true});
-    row.addEventListener('touchend',cancel); row.addEventListener('touchmove',cancel); row.addEventListener('touchcancel',cancel);
-    row.addEventListener('mousedown',start); row.addEventListener('mouseup',cancel); row.addEventListener('mouseleave',cancel);
-    row.addEventListener('click',e=>{ if(fired){ e.stopImmediatePropagation(); e.preventDefault(); fired=false; } },true);
-    row.addEventListener('contextmenu',e=>e.preventDefault());
-  });
+  if(openDay) setTimeout(()=>{ const el=document.getElementById('msday-'+d); if(el) el.scrollIntoView({behavior:'smooth',block:'center'}); },50);
 }
 function updateMonthSubtitle(mk){ renderMonth(); }
 
@@ -741,7 +740,7 @@ function saveEntry(){
   if(curTab!=='thien') renderThien();
   const c=cats.find(c=>c.id===slot.catId);
   toast('✓ Đã lưu '+(c?c.icon+' ':'')+fmtVND(amt)+' — ngày '+d+'/'+m);
-  setTimeout(()=>{ const el=document.getElementById('jrday-'+d); if(el){ el.scrollIntoView({behavior:'smooth',block:'center'}); el.classList.add('flash'); setTimeout(()=>el.classList.remove('flash'),1200);} },80);
+  setTimeout(()=>{ const el=document.getElementById('msday-'+d); if(el){ el.scrollIntoView({behavior:'smooth',block:'center'}); el.classList.add('flash'); setTimeout(()=>el.classList.remove('flash'),1400);} },80);
 }
 function pruneDay(mk,d){
   if(data[mk]&&data[mk][d]&&!Object.keys(data[mk][d]).length) delete data[mk][d];
@@ -764,62 +763,50 @@ function repeatEntry(mk,d,i){
   openEntry(null,{slot:JSON.parse(JSON.stringify(slot))});
 }
 
-// ── PATCH 2: renderMonthSummary - chi tiết từng khoản ──
+// ── Tổng kết tháng: liệt kê từng ngày liên tiếp, mỗi dòng có ô loại (chạm để đổi) ──
+let _catPick=null, _showCatSum=false;
 function renderMonthSummary(mk,md,tot,cnt){
   const el=document.getElementById('month-summary');
-  if(tot<=0){el.innerHTML='';return;}
-  // Build per-cat item list
-  const catItems={};
-  Object.keys(md).sort((a,b)=>Number(a)-Number(b)).forEach(day=>{
-    const dd=md[day];
-    if(!dd||typeof dd!=='object') return;
-    const seen={};
-    Object.keys(dd).forEach(si=>{
-      const slot=dd[si];
-      if(!slot||typeof slot!=='object'||!slot.catId||!slot.amount) return;
-      const key=day+'-'+si;
-      if(seen[key]) return; seen[key]=1;
-      const amt=parseAmt(slot.amount); if(!amt) return;
-      if(!catItems[slot.catId]) catItems[slot.catId]=[];
-      catItems[slot.catId].push({day:parseInt(day),idx:si,mk:mk,note:slot.note||'',place:slot.place||'',amount:amt});
-    });
-  });
-  // Cumulative up to this month
-  let gt=0;
-  Object.keys(data).forEach(mk2=>{ if(mk2<=mk) gt+=monthTotal(mk2); });
   const mn=MONTHS_VN[curMonth];
-  const hasCat=Object.keys(catItems).length>0;
-  const catHTML=hasCat?`<div class="summary-sec">
-    <div class="summary-sec-title">Chi tiết thiện pháp tháng này</div>
-    ${cats.filter(cat=>catItems[cat.id]&&catItems[cat.id].length>0).map(cat=>{
-      const items=catItems[cat.id];
-      const catTot=items.reduce((s,x)=>s+x.amount,0);
-      return `<div style="margin-bottom:10px;">
-        <div style="display:flex;justify-content:space-between;padding:5px 0 4px;border-bottom:1px solid #D4B85A;">
-          <div style="font-size:13px;font-weight:800;color:#5C3D00;">${cat.icon} ${cat.name}</div>
-          <div style="font-size:13px;font-weight:800;color:#8B6914;">${fmtVND(catTot)}</div>
-        </div>
-        ${items.map(item=>`<div onclick="openEntry({mk:'${item.mk}',d:${item.day},i:'${item.idx}'})" style="cursor:pointer;display:flex;justify-content:space-between;align-items:flex-start;padding:5px 0 4px 12px;border-bottom:1px dashed #E8D8A0;">
-          <div style="flex:1;font-size:12px;">
-            <span style="font-weight:700;color:#8B6914;">Ngày ${item.day}</span>
-            ${item.place?`<span style="color:#A0805A;"> · ${escTxt(item.place)}</span>`:''}
-            ${item.note?`<div style="color:#888;font-style:italic;font-size:11px;white-space:pre-wrap;">${escTxt(item.note)}</div>`:''}
-          </div>
-          <span style="font-size:12px;font-weight:700;color:#5C3D00;margin-left:8px;white-space:nowrap;">${fmtVND(item.amount)}</span>
-        </div>`).join('')}
-      </div>`;
-    }).join('')}
-    <div class="summary-total-row"><span>Tổng cúng dường tháng</span><span>${fmtVND(tot)}</span></div>
-  </div>`:'';
+  const rows=[];
+  Object.keys(md).map(Number).sort((a,b)=>a-b).forEach(d=>dayEntries(mk,d).forEach(e=>rows.push({d,idx:e.idx,slot:e.slot})));
+  let gt=0; Object.keys(data).forEach(mk2=>{ if(mk2<=mk) gt+=monthTotal(mk2); });
+  if(!rows.length){
+    el.innerHTML=`<div class="summary-box"><div class="summary-title">🪷 TỔNG KẾT ${mn.toUpperCase()} ${curYear}</div>
+      <div class="ms-empty">Chưa có khoản cúng dường nào.<br>Bấm <b>➕</b> hoặc chạm vào một ngày trên lịch để ghi.</div></div>`;
+    return;
+  }
+  let lastDay=null;
+  const list=rows.map(r=>{
+    const c=cats.find(c=>c.id===r.slot.catId), amt=parseAmt(r.slot.amount);
+    const key=r.d+'-'+r.idx, open=_catPick===key;
+    const sub=[r.slot.place,r.slot.note].map(x=>(x||'').trim()).filter(Boolean).map(escTxt).join(' · ');
+    const newDay=r.d!==lastDay; lastDay=r.d;
+    return `<div class="ms-row${newDay?' nd':''}${openDay===r.d?' hl':''}" data-d="${r.d}" ${newDay?`id="msday-${r.d}"`:''}>
+      <div class="ms-day">${newDay?`<b>${r.d}</b><small>${WEEKDAYS_VN[new Date(curYear,curMonth,r.d).getDay()]}</small>`:''}</div>
+      <div class="ms-main" onclick="openEntry({mk:'${mk}',d:${r.d},i:'${r.idx}'})">
+        <div class="ms-sub">${sub||'<i>—</i>'}</div>
+        <div class="ms-amt">${amt?fmtVND(amt):''}</div>
+      </div>
+      <button class="ms-cat${c?'':' none'}${open?' open':''}" onclick="toggleCatPick('${key}')">${c?c.icon+' '+escTxt(c.name):'❔ Chọn loại'} ▾</button>
+      <button class="ms-rep" title="Lặp lại cho hôm nay" onclick="repeatEntry('${mk}',${r.d},'${r.idx}')">↻</button>
+      ${open?`<div class="ms-pick">${cats.map(x=>`<button class="${x.id===r.slot.catId?'sel':''}" onclick="setEntryCat('${mk}',${r.d},'${r.idx}','${x.id}')">${x.icon} ${escTxt(x.name)}</button>`).join('')}</div>`:''}
+    </div>`;
+  }).join('');
+  // Phân loại: tổng theo từng loại
+  const byCat={}; let none=0;
+  rows.forEach(r=>{ const a=parseAmt(r.slot.amount); if(cats.find(c=>c.id===r.slot.catId)) byCat[r.slot.catId]=(byCat[r.slot.catId]||0)+a; else none+=a; });
+  const catRows=cats.filter(c=>byCat[c.id]).sort((a,b)=>byCat[b.id]-byCat[a.id]).map(c=>`<div class="ms-cs"><span>${c.icon} ${escTxt(c.name)}</span><span class="bar"><i style="width:${Math.round(byCat[c.id]/tot*100)}%"></i></span><b>${fmtVND(byCat[c.id])}</b></div>`).join('')
+    +(none?`<div class="ms-cs"><span>❔ Chưa phân loại</span><span class="bar"><i style="width:${Math.round(none/tot*100)}%"></i></span><b>${fmtVND(none)}</b></div>`:'');
   el.innerHTML=`<div class="summary-box">
     <div class="summary-title">🪷 TỔNG KẾT ${mn.toUpperCase()} ${curYear}</div>
     <div class="summary-total">${fmtVND(tot)}</div>
-    <div class="summary-count">${cnt} ngày cúng dường trong tháng</div>
-    ${catHTML}
-    <div class="summary-alltime">
-      <span>Tổng cộng dồn đến ${mn}</span>
-      <span>${fmtVND(gt)}</span>
-    </div>
+    <div class="summary-count">${rows.length} khoản · ${cnt} ngày cúng dường trong tháng</div>
+    <div class="ms-list">${list}</div>
+    <div class="ms-hint">Chạm dòng để sửa · chạm ô loại để đổi loại · ↻ lặp lại cho hôm nay</div>
+    <button class="ms-catbtn${_showCatSum?' open':''}" onclick="_showCatSum=!_showCatSum;renderMonth()">📊 Phân loại theo thiện pháp ${_showCatSum?'▲':'▼'}</button>
+    ${_showCatSum?`<div class="ms-cats">${catRows}<div class="summary-total-row"><span>Tổng cúng dường tháng</span><span>${fmtVND(tot)}</span></div></div>`:''}
+    <div class="summary-alltime"><span>Tổng cộng dồn đến ${mn}</span><span>${fmtVND(gt)}</span></div>
     <div style="margin-top:12px;border-top:1px solid #D4B85A;padding-top:12px;display:flex;flex-direction:column;gap:8px;">
       <div style="display:flex;gap:8px;">
         <button onclick="copyMonth()" style="flex:1;padding:9px;background:#8B6914;border:none;border-radius:8px;color:#FFF8E7;font-size:12px;cursor:pointer;font-weight:700;">📋 Sao chép tháng này</button>
@@ -829,6 +816,13 @@ function renderMonthSummary(mk,md,tot,cnt){
     </div>
   </div>`;
 }
+function toggleCatPick(key){ _catPick=_catPick===key?null:key; renderMonth(); }
+function setEntryCat(mk,d,i,catId){
+  const slot=data[mk]&&data[mk][d]&&data[mk][d][i]; if(!slot) return;
+  slot.catId=catId; _catPick=null; saveData(); renderMonth(); renderThien();
+  const c=cats.find(c=>c.id===catId); toast('✓ Đã chuyển sang '+(c?c.icon+' '+c.name:''));
+}
+
 
 function changeYear(d){ curYear+=d; saveView(); }
 function renderYear(){
@@ -907,84 +901,58 @@ async function resetMonthData(){
   delete data[mKey(curYear,curMonth)]; saveData(); renderMonth(); renderThien();
 }
 
-// ── PATCH 3: renderThien - monthly rows read from data, show note from slot ──
+// ── Trang Thiện Pháp (gọn) ──
+let _thOpen=null, _thMon=null;
 function renderThien(){
   document.getElementById('thien-title').textContent='Thiện Pháp — Năm '+thienYear;
-  const grandYr=cats.reduce((s,c)=>s+catYearTotal(c.id,thienYear),0);
-  const grandAll=cats.reduce((s,c)=>s+catAllTotal(c.id),0);
+  const yr={}, all={};
+  cats.forEach(c=>{ yr[c.id]=catYearTotal(c.id,thienYear); all[c.id]=catAllTotal(c.id); });
+  const grandYr=cats.reduce((s,c)=>s+yr[c.id],0), grandAll=cats.reduce((s,c)=>s+all[c.id],0);
   document.getElementById('thien-sub').textContent=grandYr>0?'Tổng năm: '+fmtVND(grandYr):'';
-  document.getElementById('thien-banner').innerHTML=grandAll>0?`<div class="thien-banner"><svg width="34" height="34" viewBox="0 0 40 40" fill="none"><ellipse cx="20" cy="26" rx="6" ry="10" fill="#EDD98A" opacity=".4"/><ellipse cx="11" cy="23" rx="6" ry="9" transform="rotate(-30 11 23)" fill="#EDD98A" opacity=".4"/><ellipse cx="29" cy="23" rx="6" ry="9" transform="rotate(30 29 23)" fill="#EDD98A" opacity=".4"/><ellipse cx="20" cy="26" rx="5" ry="9" fill="#EDD98A" opacity=".7"/></svg><div><div style="font-size:10px;color:#EDD98A;letter-spacing:.1em;font-weight:700;margin-bottom:2px;">TỔNG CỘNG DỒN TẤT CẢ THIỆN PHÁP</div><div style="font-size:26px;font-weight:800;color:#FFF8E7;font-family:Georgia,serif;">${fmtVND(grandAll)}</div>${grandYr<grandAll?`<div style="font-size:11px;color:#EDD98A;opacity:.8;margin-top:2px;">Năm ${thienYear}: ${fmtVND(grandYr)}</div>`:''}</div></div>`:'';
+  document.getElementById('thien-banner').innerHTML=grandAll>0?`<div class="th-banner">
+      <div><div class="l">Năm ${thienYear}</div><div class="v">${fmtVND(grandYr)||'0 đ'}</div></div>
+      <div style="text-align:right"><div class="l">Cộng dồn tất cả</div><div class="v2">${fmtVND(grandAll)}</div></div>
+    </div>`:'';
+  const maxYr=Math.max(1,...cats.map(c=>yr[c.id]));
+  const order=[...cats].sort((a,b)=>yr[b.id]-yr[a.id]||all[b.id]-all[a.id]);
   const el=document.getElementById('thien-cats');
-  el.innerHTML=cats.map(cat=>{
-    const yt=catYearTotal(cat.id,thienYear), at=catAllTotal(cat.id);
-    return `<div class="cat-card">
-      <div class="cat-card-head" id="chead-${cat.id}" onclick="toggleCat('${cat.id}')">
-        <div class="cat-icon">${cat.icon}</div>
-        <div class="cat-info">
-          <div class="cat-name">${cat.name}</div>
-          <div class="cat-sub">Năm ${thienYear}: <strong style="color:${yt>0?'#8B6914':'#C8A84B'}">${yt>0?fmtVND(yt):'—'}</strong>${at>yt&&at>0?`&nbsp;· Cộng dồn: <strong style="color:#A0805A">${fmtVND(at)}</strong>`:''}</div>
-        </div>
-        <span style="font-size:12px;color:#C8A84B;margin-right:4px;">▼</span>
-        <button style="background:none;border:none;cursor:pointer;color:#8B6914;font-size:13px;padding:2px 4px;" onclick="event.stopPropagation();editCat('${cat.id}')">✏️</button>
-        <button style="background:none;border:none;cursor:pointer;color:#C8A84B;font-size:14px;padding:2px 4px;" onclick="event.stopPropagation();removeCat('${cat.id}')">✕</button>
-      </div>
-      <div class="cat-body" id="cbody-${cat.id}">
-        ${Array.from({length:12},(_,mi)=>{
-          const mk2=mKey(thienYear,mi);
-          const monAmt=catMonthTotal(cat.id,mk2);
-          // Collect items from data for this cat+month
-          const monMd=data[mk2]||{};
-          const monItems=[];
-          const seen={};
-          Object.keys(monMd).sort((a,b)=>Number(a)-Number(b)).forEach(day=>{
-            const dd=monMd[day];
-            if(!dd||typeof dd!=='object') return;
-            Object.keys(dd).forEach(si=>{
-              const slot=dd[si];
-              if(!slot||typeof slot!=='object'||slot.catId!==cat.id||!slot.amount) return;
-              const key=day+'-'+si; if(seen[key]) return; seen[key]=1;
-              monItems.push({day:parseInt(day),idx:si,mk:mk2,note:slot.note||'',place:slot.place||'',amount:parseAmt(slot.amount)});
-            });
-          });
-          const noteSummary=monItems.map(x=>[x.place,x.note].filter(Boolean).join(' · ')).filter(Boolean).join('; ');
-          return `<div class="mon-row" onclick="toggleMonEdit('${cat.id}',${mi})">
-            <div class="mon-name${monAmt>0?' has':''}">${MONTHS_VN[mi]}</div>
-            <div class="mon-val${monAmt>0?' has':''}">${monAmt>0?fmtVND(monAmt):'—'}</div>
-            ${noteSummary?`<div class="mon-note">${escTxt(noteSummary)}</div>`:''}
-            <span style="font-size:11px;color:#C8A84B;">▼</span>
-          </div>
-          <div class="mon-edit" id="medit-${cat.id}-${mi}">
-            ${monItems.length?monItems.map(item=>`<div onclick="openEntry({mk:'${item.mk}',d:${item.day},i:'${item.idx}'})" style="cursor:pointer;grid-column:1/-1;display:flex;justify-content:space-between;align-items:flex-start;padding:5px 0;border-bottom:1px dashed #E8D8A0;">
-              <div style="flex:1;font-size:12px;">
-                <span style="font-weight:700;color:#8B6914;">Ngày ${item.day}</span>
-                ${item.place?`<span style="color:#A0805A;"> · ${escTxt(item.place)}</span>`:''}
-                ${item.note?`<div style="color:#888;font-style:italic;font-size:11px;white-space:pre-wrap;">${escTxt(item.note)}</div>`:''}
-              </div>
-              <span style="font-size:12px;font-weight:700;color:#5C3D00;margin-left:8px;white-space:nowrap;">${fmtVND(item.amount)}</span>
-            </div>`).join(''):`<div style="grid-column:1/-1;font-size:11px;color:#C8A84B;padding:6px 0;">Chưa có dữ liệu</div>`}
-          </div>`;
-        }).join('')}
-        <div class="cat-footer">
-          <div class="cat-footer-row">
-            <span style="font-size:12px;font-weight:700;color:#5C3D00;">Tổng năm ${thienYear}</span>
-            <span style="font-size:16px;font-weight:800;color:#8B6914;font-family:Georgia,serif;">${yt>0?fmtVND(yt):'—'}</span>
-          </div>
-          ${at>0?`<div class="cat-footer-row" style="margin-top:4px;"><span style="font-size:11px;color:#8B6914;">Cộng dồn tất cả</span><span style="font-size:13px;font-weight:700;color:#5C3D00;">${fmtVND(at)}</span></div>`:''}
-        </div>
-      </div>
-    </div>`;
-  }).join('');
+  el.innerHTML=`<div class="th-table">
+    <div class="th-h"><span>Thiện pháp</span><span>Năm ${thienYear}</span></div>
+    ${order.map(cat=>{
+      const y=yr[cat.id], open=_thOpen===cat.id, pct=grandYr?(y/grandYr*100<1?0.5:Math.round(y/grandYr*100)):0;
+      let body='';
+      if(open){
+        const mons=Array.from({length:12},(_,mi)=>{
+          const mk2=mKey(thienYear,mi), items=[];
+          Object.keys(data[mk2]||{}).map(Number).sort((a,b)=>a-b).forEach(d=>dayEntries(mk2,d).forEach(e=>{ if(e.slot.catId===cat.id) items.push({d,idx:e.idx,slot:e.slot}); }));
+          return {mi,mk2,items,sum:items.reduce((s,x)=>s+parseAmt(x.slot.amount),0)};
+        }).filter(m=>m.items.length);
+        body=`<div class="th-body">
+          ${mons.length?mons.map(m=>{
+            const mo=_thMon===cat.id+'-'+m.mi;
+            return `<div class="th-mon${mo?' open':''}" onclick="_thMon=${mo?'null':`'${cat.id}-${m.mi}'`};renderThien()"><span>${MONTHS_VN[m.mi]}</span><small>${m.items.length} khoản</small><b>${fmtVND(m.sum)}</b><span class="ch">${mo?'▲':'▼'}</span></div>
+            ${mo?m.items.map(x=>{ const sub=[x.slot.place,x.slot.note].map(t=>(t||'').trim()).filter(Boolean).map(escTxt).join(' · ');
+              return `<div class="th-item" onclick="openEntry({mk:'${m.mk2}',d:${x.d},i:'${x.idx}'})"><span class="d">Ngày ${x.d}</span><span class="s">${sub}</span><b>${fmtVND(parseAmt(x.slot.amount))}</b></div>`; }).join(''):''}`;
+          }).join(''):`<div class="th-none">Chưa có khoản nào trong năm ${thienYear}</div>`}
+          <div class="th-foot"><span>Cộng dồn tất cả: <b>${all[cat.id]?fmtVND(all[cat.id]):'—'}</b></span>
+            <span><button onclick="editCat('${cat.id}')">✏️ Sửa</button><button onclick="removeCat('${cat.id}')">🗑 Xóa</button></span></div>
+        </div>`;
+      }
+      return `<div class="th-cat${open?' open':''}${y?'':' zero'}">
+        <div class="th-row" id="chead-${cat.id}" onclick="toggleCat('${cat.id}')">
+          <span class="ic">${cat.icon}</span>
+          <span class="nm">${escTxt(cat.name)}<span class="bar"><i style="width:${Math.round(y/maxYr*100)}%"></i></span></span>
+          <span class="am">${y?fmtVND(y):'—'}${y?`<small>${pct<1?'<1':pct}%</small>`:''}</span>
+          <span class="ch">${open?'▲':'▼'}</span>
+        </div>${body}</div>`;
+    }).join('')}
+    <div class="th-total"><span>Tổng năm ${thienYear}</span><b>${fmtVND(grandYr)||'—'}</b></div>
+  </div>`;
   document.getElementById('icon-grid').innerHTML=ICONS.map(ic=>`<button class="icon-btn${ic===selectedIcon?' sel':''}" onclick="selectIcon('${ic}')">${ic}</button>`).join('');
   renderThienChart();
 }
-function toggleCat(id){
-  const head=document.getElementById('chead-'+id), body=document.getElementById('cbody-'+id);
-  const open=body.classList.toggle('open'); head.classList.toggle('open',open);
-  head.querySelector('span').textContent=open?'▲':'▼';
-}
-function toggleMonEdit(catId,mi){
-  document.getElementById('medit-'+catId+'-'+mi).classList.toggle('open');
-}
+function toggleCat(id){ _thOpen=_thOpen===id?null:id; _thMon=null; renderThien(); }
+function toggleMonEdit(){}
 function updateThien(catId,mi,val,field){
   if(!thien[catId]) thien[catId]={};
   const mk2=mKey(thienYear,mi);
