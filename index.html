@@ -219,6 +219,17 @@ html.lock-scroll .ms-dd{touch-action:pan-y;}
 .th-foot button{margin-left:5px;padding:4px 10px;border:1px solid #D4B85A;border-radius:12px;background:#fff;color:#5C3D00;font-size:11.5px;font-weight:700;cursor:pointer;}
 .th-total{display:flex;justify-content:space-between;padding:9px 12px;background:#FDF0C0;border-top:1px solid #D9C27A;font-size:13px;font-weight:700;color:#5C3D00;}
 .th-total b{font-size:15px;font-family:Georgia,serif;}
+/* ── Màn hình ngang & rộng (máy tính, màn hình trong xoay ngang): 3 trang cạnh nhau ── */
+#cols{display:block;}
+body.wide{height:100vh;overflow:hidden;display:flex;flex-direction:column;}
+body.wide #header{position:relative;flex-shrink:0;padding:8px 16px 8px;}
+body.wide #header .sub{display:none;}
+body.wide #tabs{display:none;}
+body.wide #cols{flex:1;min-height:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));}
+body.wide #cols>.page{display:block!important;height:100%;overflow-y:auto;overscroll-behavior:contain;padding-bottom:90px;border-right:1px solid #E3CE88;}
+body.wide #cols>.page:last-child{border-right:none;}
+body.wide #cols>.page::before{content:attr(data-title);display:block;position:sticky;top:0;z-index:5;padding:7px 12px;background:#5C3D00;color:#FFF8E7;font-size:13px;font-weight:800;text-align:center;letter-spacing:.03em;}
+body.wide .page.lock{overflow:hidden!important;}
 .lbl{display:block;font-size:10px;color:#8B6914;font-weight:700;margin-bottom:3px;text-transform:uppercase;letter-spacing:.04em;}
 .cat-btns{margin-top:4px;}
 .cat-lbl{font-size:9px;color:#8B6914;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:5px;}
@@ -411,7 +422,7 @@ window.onerror = function(msg, src, line, col, err) {
   <div class="f-name" id="f-name"></div>
 </div>
 <!-- MONTH TAB -->
-<div id="page-month" class="page">
+<div id="page-month" class="page" data-title="📅 Tháng">
   <div style="padding:10px 12px 6px;border-bottom:1px solid #E8D8A0;">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
       <button class="nav-btn" onclick="changeYear(-1);renderMonthPicker()" style="width:30px;height:30px;font-size:16px;">‹</button>
@@ -425,7 +436,7 @@ window.onerror = function(msg, src, line, col, err) {
   <div id="month-summary"></div>
 </div>
 <!-- YEAR TAB -->
-<div id="page-year" class="page">
+<div id="page-year" class="page" data-title="📊 Năm">
   <div class="nav-row">
     <button class="nav-btn" onclick="changeYear(-1);renderYear()">‹</button>
     <div class="nav-title">
@@ -442,7 +453,7 @@ window.onerror = function(msg, src, line, col, err) {
   <div class="month-grid" id="month-grid"></div>
 </div>
 <!-- THIEN PHAP TAB -->
-<div id="page-thien" class="page">
+<div id="page-thien" class="page" data-title="🌸 Thiện Pháp">
   <div class="nav-row">
     <button class="nav-btn" onclick="changeThienYear(-1)">‹</button>
     <div class="nav-title">
@@ -487,7 +498,7 @@ window.onerror = function(msg, src, line, col, err) {
 </style>
 <div id="settings-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:200;align-items:flex-start;justify-content:center;padding:6vh 14px 0;overflow-y:auto" onclick="if(event.target===this)closeSettingsModal()">
   <div style="background:#FFF8E7;color:#3d2a00;border-radius:16px;padding:18px;width:100%;max-width:400px;box-shadow:0 12px 40px rgba(0,0,0,.35);margin-bottom:6vh">
-    <h3 style="margin:0 0 12px;font-size:17px">⚙ Cài đặt <span style="font-size:11px;font-weight:600;color:#7A6A45">· Phiên bản v29</span></h3>
+    <h3 style="margin:0 0 12px;font-size:17px">⚙ Cài đặt <span style="font-size:11px;font-weight:600;color:#7A6A45">· Phiên bản v30</span></h3>
     <div style="border:1.5px solid #C9A54A;border-radius:12px;padding:12px;margin-bottom:10px;background:linear-gradient(180deg,rgba(255,255,255,.9) 0%,rgba(255,255,255,0) 40%),linear-gradient(180deg,#FFFDF4 0%,#F6EBC9 100%);box-shadow:0 5px 10px rgba(110,80,15,.20),0 1px 0 rgba(255,255,255,.95) inset,0 -3px 6px rgba(150,110,30,.16) inset;">
       <div style="font-weight:800;font-size:13.5px;margin-bottom:6px">☁️ Đồng bộ nhiều thiết bị</div>
       <div id="set-sync-status" style="font-size:12px;color:#7a5c1e;margin-bottom:8px"></div>
@@ -578,7 +589,7 @@ function load(){
   try{ cats=JSON.parse(localStorage.getItem(CK)||'null')||DEFAULT_CATS; }catch{cats=DEFAULT_CATS;}
   try{ thien=JSON.parse(localStorage.getItem(TK)||'{}'); }catch{thien={};}
 }
-function saveData(){ localStorage.setItem(SK,JSON.stringify(data)); queueCloudSave(); }
+function saveData(){ localStorage.setItem(SK,JSON.stringify(data)); queueCloudSave(); if(_wide){ clearTimeout(saveData._t); saveData._t=setTimeout(()=>{ renderYear(); renderThien(); renderMonth(); },60); } }
 function saveCats(){ localStorage.setItem(CK,JSON.stringify(cats)); queueCloudSave(); }
 function saveThien(){ localStorage.setItem(TK,JSON.stringify(thien)); queueCloudSave(); }
 function cleanupData(){
@@ -644,6 +655,7 @@ function showTab(t){
     document.getElementById('page-'+x).classList.toggle('active',x===t);
     document.getElementById('tab-'+x).classList.toggle('active',x===t);
   });
+  if(_wide&&!showTab._init){ showTab._init=1; renderAll(); }
   if(t==='month') renderMonth();
   if(t==='year')  renderYear();
   if(t==='thien') renderThien();
@@ -951,10 +963,13 @@ function toggleCatPick(key){ _catPick=_catPick===key?null:key; renderMonth(); fi
 // Menu chọn loại: dòng đang chọn được đưa lên ngay dưới cụm đầu, trang bị khóa, chỉ menu cuộn
 function fitCatMenu(scroll){
   const dd=document.querySelector('.ms-dd');
-  document.documentElement.classList.toggle('lock-scroll',!!dd);
+  const pm=document.getElementById('page-month');
+  if(_wide){ pm.classList.toggle('lock',!!dd); document.documentElement.classList.remove('lock-scroll'); }
+  else document.documentElement.classList.toggle('lock-scroll',!!dd);
   if(!dd) return;
   const row=dd.closest('.ms-row');
-  if(scroll&&row){ const tb=document.getElementById('tabs').getBoundingClientRect().bottom; window.scrollBy(0,row.getBoundingClientRect().top-tb-8); }
+  if(scroll&&row&&_wide){ pm.scrollTop+=row.getBoundingClientRect().top-pm.getBoundingClientRect().top-40; }
+  else if(scroll&&row){ const tb=document.getElementById('tabs').getBoundingClientRect().bottom; window.scrollBy(0,row.getBoundingClientRect().top-tb-8); }
   const top=dd.getBoundingClientRect().top;
   dd.style.maxHeight=Math.max(150,(window.innerHeight-top)/_zoom-14)+'px';
 }
@@ -1001,7 +1016,7 @@ function renderThienChart(){
   const months=Array.from({length:12},(_,mi)=>{ const mk2=mKey(thienYear,mi); const row={}; cats.forEach(c=>{ row[c.id]=catMonthTotal(c.id,mk2); }); row._total=cats.reduce((s,c)=>s+row[c.id],0); return row; });
   const maxV=Math.max(...months.map(r=>r._total),1);
   const activeCats=cats.filter(c=>months.some(m=>m[c.id]>0));
-  const W=Math.max(240,Math.round(window.innerWidth/_zoom)-64), H=140, padL=4, padR=4, padT=24, padB=20;
+  const W=Math.max(240,(_wide?document.getElementById('page-thien').clientWidth:Math.round(window.innerWidth/_zoom))-64), H=140, padL=4, padR=4, padT=24, padB=20;
   const chartW=W-padL-padR, chartH=H-padT-padB, barW=Math.floor(chartW/12);
   const gap=Math.max(1,Math.floor(barW*0.15)), bw=barW-gap;
   const canvas=document.createElement('canvas');
@@ -1679,8 +1694,23 @@ async function requestPersist(){ try{ if(navigator.storage&&navigator.storage.pe
 // ── Vừa khít mọi màn hình: nội dung trải hết chiều ngang, chữ/khung phóng theo bề rộng ──
 // Thiết kế gốc cho điện thoại (~420px); màn hình rộng hơn được phóng to tương ứng (tối đa 1.6 lần).
 let _zoom=1;
+let _wide=false;
+function isWideScreen(){ return window.innerWidth>=900 && window.innerWidth>window.innerHeight; }
+// Gom 3 trang vào một khung; ở màn hình ngang & rộng thì hiện cạnh nhau, mỗi trang 1/3
+function setupCols(){
+  if(document.getElementById('cols')) return;
+  const c=document.createElement('div'); c.id='cols';
+  const first=document.getElementById('page-month'); first.parentNode.insertBefore(c,first);
+  ['page-thien','page-month','page-year'].forEach(id=>c.appendChild(document.getElementById(id)));
+}
+function applyWide(){
+  const w=isWideScreen(), changed=w!==_wide; _wide=w;
+  document.body.classList.toggle('wide',w);
+  return changed;
+}
 function fitScreen(){
-  const z=Math.min(1.6,Math.max(1,window.innerWidth/600));
+  setupCols(); applyWide();
+  const z=_wide?1:Math.min(1.6,Math.max(1,window.innerWidth/600));
   if(Math.abs(z-_zoom)<0.01&&document.body.style.zoom) return false;
   _zoom=z; document.body.style.zoom=z; return true;
 }
@@ -1689,7 +1719,7 @@ function setTabsH(){ const h=document.getElementById('header'), t=document.getEl
 setTabsH();
 try{ new ResizeObserver(setTabsH).observe(document.getElementById('header')); }catch(e){ window.addEventListener('load',setTabsH); }
 let _fitT=null;
-window.addEventListener('resize',()=>{ clearTimeout(_fitT); _fitT=setTimeout(()=>{ fitScreen(); setTabsH(); if(curTab==='thien') renderThienChart(); },150); });
+window.addEventListener('resize',()=>{ clearTimeout(_fitT); _fitT=setTimeout(()=>{ const was=_wide; fitScreen(); setTabsH(); if(_wide&&!was) renderAll(); else if(_wide||curTab==='thien') renderThienChart(); },150); });
 load();
 cleanupData();
 (function(){
