@@ -228,6 +228,26 @@ body.wide #tabs{display:none;}
 body.wide #cols{flex:1;min-height:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));}
 body.wide #cols>.page{display:block!important;height:100%;overflow-y:auto;overscroll-behavior:contain;padding-bottom:90px;border-right:1px solid #E3CE88;}
 body.wide #cols>.page:last-child{border-right:none;}
+body.wide #cols>.page{overflow-x:hidden;container-type:inline-size;}
+/* Cột hẹp (màn hình trong điện thoại xoay ngang ~280px/cột) */
+@container (max-width:380px){
+  .nav-title h2{font-size:15px;}
+  .nav-btn{width:30px;height:30px;font-size:16px;}
+  .nav-row{padding:10px 10px 8px;}
+  .th-banner{flex-direction:column;align-items:flex-start;gap:4px;margin:10px 10px 4px;}
+  .th-banner>div:last-child{text-align:left!important;}
+  .th-banner .v{font-size:17px;}
+  .thien-cats{padding:10px 10px 0;}
+  .thien-chart,.chart-wrap{margin:10px;padding:10px 10px 6px;}
+  .year-banner{margin:10px;padding:8px 12px;}
+  .year-banner-text .val{font-size:17px;}
+  .month-grid{grid-template-columns:repeat(2,1fr);padding:6px 10px;}
+  .summary-box{margin:14px 8px 0;padding:12px;}
+  .summary-total{font-size:21px;}
+  .ms-cat{max-width:100%;}
+  .th-row .nm{font-size:13px;}
+  .th-row .am{font-size:12.5px;}
+}
 body.wide #cols>.page::before{content:attr(data-title);display:block;position:sticky;top:0;z-index:5;padding:7px 12px;background:#5C3D00;color:#FFF8E7;font-size:13px;font-weight:800;text-align:center;letter-spacing:.03em;}
 body.wide .page.lock{overflow:hidden!important;}
 .lbl{display:block;font-size:10px;color:#8B6914;font-weight:700;margin-bottom:3px;text-transform:uppercase;letter-spacing:.04em;}
@@ -498,7 +518,7 @@ window.onerror = function(msg, src, line, col, err) {
 </style>
 <div id="settings-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:200;align-items:flex-start;justify-content:center;padding:6vh 14px 0;overflow-y:auto" onclick="if(event.target===this)closeSettingsModal()">
   <div style="background:#FFF8E7;color:#3d2a00;border-radius:16px;padding:18px;width:100%;max-width:400px;box-shadow:0 12px 40px rgba(0,0,0,.35);margin-bottom:6vh">
-    <h3 style="margin:0 0 12px;font-size:17px">⚙ Cài đặt <span style="font-size:11px;font-weight:600;color:#7A6A45">· Phiên bản v30</span></h3>
+    <h3 style="margin:0 0 12px;font-size:17px">⚙ Cài đặt <span style="font-size:11px;font-weight:600;color:#7A6A45">· Phiên bản v31</span></h3>
     <div style="border:1.5px solid #C9A54A;border-radius:12px;padding:12px;margin-bottom:10px;background:linear-gradient(180deg,rgba(255,255,255,.9) 0%,rgba(255,255,255,0) 40%),linear-gradient(180deg,#FFFDF4 0%,#F6EBC9 100%);box-shadow:0 5px 10px rgba(110,80,15,.20),0 1px 0 rgba(255,255,255,.95) inset,0 -3px 6px rgba(150,110,30,.16) inset;">
       <div style="font-weight:800;font-size:13.5px;margin-bottom:6px">☁️ Đồng bộ nhiều thiết bị</div>
       <div id="set-sync-status" style="font-size:12px;color:#7a5c1e;margin-bottom:8px"></div>
@@ -1016,7 +1036,7 @@ function renderThienChart(){
   const months=Array.from({length:12},(_,mi)=>{ const mk2=mKey(thienYear,mi); const row={}; cats.forEach(c=>{ row[c.id]=catMonthTotal(c.id,mk2); }); row._total=cats.reduce((s,c)=>s+row[c.id],0); return row; });
   const maxV=Math.max(...months.map(r=>r._total),1);
   const activeCats=cats.filter(c=>months.some(m=>m[c.id]>0));
-  const W=Math.max(240,(_wide?document.getElementById('page-thien').clientWidth:Math.round(window.innerWidth/_zoom))-64), H=140, padL=4, padR=4, padT=24, padB=20;
+  const W=Math.max(160,(_wide?document.getElementById('page-thien').clientWidth:Math.round(window.innerWidth/_zoom))-64), H=140, padL=4, padR=4, padT=24, padB=20;
   const chartW=W-padL-padR, chartH=H-padT-padB, barW=Math.floor(chartW/12);
   const gap=Math.max(1,Math.floor(barW*0.15)), bw=barW-gap;
   const canvas=document.createElement('canvas');
@@ -1695,7 +1715,8 @@ async function requestPersist(){ try{ if(navigator.storage&&navigator.storage.pe
 // Thiết kế gốc cho điện thoại (~420px); màn hình rộng hơn được phóng to tương ứng (tối đa 1.6 lần).
 let _zoom=1;
 let _wide=false;
-function isWideScreen(){ return window.innerWidth>=900 && window.innerWidth>window.innerHeight; }
+// Ngang + đủ rộng + đủ cao: máy tính, màn hình trong điện thoại gập xoay ngang (~840px). Màn hình ngoài xoay ngang (cao ~400px) vẫn 1 trang.
+function isWideScreen(){ const w=window.innerWidth, h=window.innerHeight; return w>h && w>=680 && h>=480; }
 // Gom 3 trang vào một khung; ở màn hình ngang & rộng thì hiện cạnh nhau, mỗi trang 1/3
 function setupCols(){
   if(document.getElementById('cols')) return;
