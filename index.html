@@ -83,10 +83,10 @@ input{padding:7px 10px;border:1px solid #D4B85A;border-radius:6px;background:#FF
 #fab{position:fixed;right:18px;bottom:calc(22px + env(safe-area-inset-bottom));z-index:150;width:62px;height:62px;border-radius:50%;border:none;background:linear-gradient(180deg,#43a047,#2e7d32);color:#fff;font-size:34px;font-weight:400;line-height:1;cursor:pointer;box-shadow:0 6px 18px rgba(30,80,30,.45),0 2px 0 rgba(255,255,255,.35) inset;}
 #fab:active{transform:scale(.94);}
 /* ── Bảng Ghi / Sửa ── */
-#entry-sheet{display:none;position:fixed;inset:0;background:rgba(30,18,0,.55);z-index:300;align-items:flex-end;justify-content:center;}
+#entry-sheet{display:none;position:fixed;inset:0;background:rgba(30,18,0,.55);z-index:300;align-items:flex-start;justify-content:center;overflow-y:auto;}
 #entry-sheet.on{display:flex;animation:cfFade .15s ease-out;}
-#entry-sheet .box{background:#FFF8E7;width:100%;max-width:560px;max-height:94vh;overflow-y:auto;border-radius:20px 20px 0 0;padding:14px 16px calc(16px + env(safe-area-inset-bottom));box-shadow:0 -10px 40px rgba(0,0,0,.35);animation:enUp .2s ease-out;}
-@keyframes enUp{from{transform:translateY(40px);opacity:.6}to{transform:none;opacity:1}}
+#entry-sheet .box{position:relative;background:#FFF8E7;width:100%;max-width:560px;border-radius:0 0 20px 20px;padding:calc(12px + env(safe-area-inset-top)) 16px 16px;box-shadow:0 10px 40px rgba(0,0,0,.35);animation:enDown .2s ease-out;}
+@keyframes enDown{from{transform:translateY(-30px);opacity:.6}to{transform:none;opacity:1}}
 .en-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;}
 .en-top .ttl{font-size:17px;font-weight:800;color:#5C3D00;}
 .en-top .x{width:34px;height:34px;border-radius:50%;border:none;background:#EDD98A;color:#5C3D00;font-size:15px;font-weight:800;cursor:pointer;}
@@ -116,7 +116,7 @@ input{padding:7px 10px;border:1px solid #D4B85A;border-radius:6px;background:#FF
 .en-place-box.empty{color:#A89070;}
 #en-place-box{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;padding-top:7px;white-space:pre-line;}
 #en-place-box.empty{display:flex;}
-.en-dd{display:none;position:absolute;top:calc(100% + 6px);right:0;z-index:20;width:min(270px,100%);max-height:52vh;overflow-y:auto;flex-direction:column;padding:8px;background:#fff;border:1px solid #E6D7A8;border-radius:16px;box-shadow:0 10px 30px rgba(60,40,0,.25);animation:cfFade .12s ease-out;}
+.en-dd{display:none;position:absolute;top:calc(100% + 6px);right:0;z-index:20;width:min(270px,100%);max-height:62vh;overflow-y:auto;flex-direction:column;padding:8px;background:#fff;border:1px solid #E6D7A8;border-radius:16px;box-shadow:0 10px 30px rgba(60,40,0,.25);animation:cfFade .12s ease-out;}
 .en-dd.on{display:flex;}
 #dd-amt{right:calc(25% + 3px);}
 .dd-it{display:flex;align-items:center;border-radius:10px;}
@@ -482,7 +482,7 @@ window.onerror = function(msg, src, line, col, err) {
 </style>
 <div id="settings-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:200;align-items:flex-start;justify-content:center;padding:6vh 14px 0;overflow-y:auto" onclick="if(event.target===this)closeSettingsModal()">
   <div style="background:#FFF8E7;color:#3d2a00;border-radius:16px;padding:18px;width:100%;max-width:400px;box-shadow:0 12px 40px rgba(0,0,0,.35);margin-bottom:6vh">
-    <h3 style="margin:0 0 12px;font-size:17px">⚙ Cài đặt <span style="font-size:11px;font-weight:600;color:#7A6A45">· Phiên bản v22</span></h3>
+    <h3 style="margin:0 0 12px;font-size:17px">⚙ Cài đặt <span style="font-size:11px;font-weight:600;color:#7A6A45">· Phiên bản v23</span></h3>
     <div style="border:1.5px solid #C9A54A;border-radius:12px;padding:12px;margin-bottom:10px;background:linear-gradient(180deg,rgba(255,255,255,.9) 0%,rgba(255,255,255,0) 40%),linear-gradient(180deg,#FFFDF4 0%,#F6EBC9 100%);box-shadow:0 5px 10px rgba(110,80,15,.20),0 1px 0 rgba(255,255,255,.95) inset,0 -3px 6px rgba(150,110,30,.16) inset;">
       <div style="font-weight:800;font-size:13.5px;margin-bottom:6px">☁️ Đồng bộ nhiều thiết bị</div>
       <div id="set-sync-status" style="font-size:12px;color:#7a5c1e;margin-bottom:8px"></div>
@@ -724,7 +724,7 @@ function openEntry(ref,preset){
   document.getElementById('en-del').style.display=ref?'':'none';
   document.getElementById('en-err').textContent='';
   renderEntryCats(); renderDD(); enAmtRefresh(); enDateLabel();
-  document.getElementById('entry-sheet').classList.add('on');
+  const es=document.getElementById('entry-sheet'); es.classList.add('on'); es.scrollTop=0;
   document.body.style.overflow='hidden';
   if(!ref&&!preset.slot) setTimeout(()=>document.getElementById('en-amt').focus(),80);
 }
@@ -783,7 +783,6 @@ function renderDD(){
                   :`<button type="button" class="dd-add" onclick="ddStartAdd()">＋ Thêm địa điểm</button>`;
     }
     el.innerHTML=h;
-    setTimeout(()=>el.scrollIntoView({block:'nearest',behavior:'smooth'}),20);
     if(_ddAdding) setTimeout(()=>{ const i=document.getElementById('dd-new'); if(i) i.focus(); },30);
   });
 }
