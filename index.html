@@ -99,23 +99,23 @@ input{padding:7px 10px;border:1px solid #D4B85A;border-radius:6px;background:#FF
 .en-amt-wrap input{width:100%;padding:12px 44px 12px 14px;border:2px solid #D4B85A;border-radius:12px;background:#fff;color:#3d2a00;font-size:28px;font-weight:800;text-align:right;outline:none;}
 .en-amt-wrap input:focus{border-color:#8B6914;}
 .en-amt-wrap .unit{position:absolute;right:14px;top:50%;transform:translateY(-50%);font-size:19px;font-weight:800;color:#8B6914;}
-.en-quick{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:8px;}
-.en-quick button{padding:9px 0;border:1px solid #D4B85A;border-radius:10px;background:#FDF0C0;color:#5C3D00;font-size:13.5px;font-weight:800;cursor:pointer;}
-.en-quick .k{background:#EDD98A;}
-.en-quick .clr{grid-column:1/-1;background:#fff;color:#c62828;border-color:#F3B8B0;padding:7px 0;font-size:12.5px;}
-.en-cats{display:grid;grid-template-columns:repeat(auto-fill,minmax(88px,1fr));gap:6px;}
-.en-cat{display:flex;flex-direction:column;align-items:center;gap:3px;padding:9px 4px;border:1.5px solid #E0CC8A;border-radius:12px;background:#FFFDF6;cursor:pointer;}
-.en-cat .ic{font-size:24px;line-height:1;}
-.en-cat .nm{font-size:11.5px;font-weight:700;color:#5C3D00;text-align:center;line-height:1.2;}
-.en-cat.sel{background:#5C3D00;border-color:#5C3D00;box-shadow:0 3px 8px rgba(92,61,0,.35);}
-.en-cat.sel .nm{color:#FFF8E7;}
+.en-row3{display:grid;grid-template-columns:2fr 1fr 1fr;gap:6px;align-items:stretch;}
+.en-row2{display:grid;grid-template-columns:3fr 1fr;gap:6px;align-items:stretch;}
+.en-row3 .en-amt-wrap input{font-size:22px;padding:11px 30px 11px 10px;height:100%;}
+.en-row3 .en-amt-wrap .unit{right:10px;font-size:16px;}
+.en-dd-btn{min-width:0;border:1.5px solid #D4B85A;border-radius:10px;background:#FDF0C0;color:#5C3D00;font-size:14px;font-weight:800;cursor:pointer;padding:4px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;}
+.en-dd-btn.open{background:#5C3D00;color:#FFF8E7;border-color:#5C3D00;}
+.en-dd-btn.cat .ic{font-size:20px;line-height:1;}
+.en-dd-btn.cat .nm{font-size:10.5px;line-height:1.15;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.en-dd-btn.cat.empty{background:#fff;border-style:dashed;color:#B07A2A;}
+.en-dd-btn.cat.empty .nm{font-size:13px;}
+.en-dd{display:none;flex-wrap:wrap;gap:6px;margin-top:6px;padding:8px;border:1px solid #E0CC8A;border-radius:10px;background:#FFFDF6;animation:cfFade .12s ease-out;}
+.en-dd.on{display:flex;}
+.en-dd button{padding:8px 12px;border:1px solid #D4B85A;border-radius:16px;background:#FDF0C0;color:#5C3D00;font-size:13.5px;font-weight:700;cursor:pointer;}
+.en-dd button.sel{background:#5C3D00;color:#FFF8E7;border-color:#5C3D00;}
+.en-dd .none{font-size:12.5px;color:#A0805A;padding:4px;}
 .en-in{width:100%;padding:11px 13px;border:1.5px solid #D4B85A;border-radius:10px;background:#fff;color:#3d2a00;font-size:16px;font-family:inherit;outline:none;}
 .en-in:focus{border-color:#8B6914;}
-textarea.en-in{min-height:84px;resize:none;line-height:1.5;}
-.en-places{display:flex;flex-wrap:wrap;gap:6px;margin-top:7px;}
-.en-places:empty{display:none;}
-.en-chip{padding:6px 12px;border:1px solid #D4B85A;border-radius:16px;background:#FFFBF0;color:#5C3D00;font-size:12.5px;font-weight:700;cursor:pointer;}
-.en-chip.sel{background:#8B6914;color:#FFF8E7;border-color:#8B6914;}
 .en-err{min-height:18px;margin-top:10px;font-size:13px;font-weight:700;color:#c62828;text-align:center;}
 .en-btns{display:flex;gap:8px;margin-top:4px;}
 .en-btns button{padding:13px 0;border:none;border-radius:12px;font-size:15.5px;font-weight:800;cursor:pointer;}
@@ -201,16 +201,16 @@ textarea.en-in{min-height:84px;resize:none;line-height:1.5;}
 .summary-alltime{margin-top:10px;border-top:1px solid #D4B85A;padding-top:10px;display:flex;justify-content:space-between;align-items:center;}
 .summary-alltime span:first-child{font-size:11px;color:#8B6914;}
 .summary-alltime span:last-child{font-size:15px;font-weight:800;color:#5C3D00;font-family:Georgia,serif;}
-.year-banner{margin:16px 16px 8px;background:linear-gradient(135deg,#5C3D00,#8B6914);border-radius:12px;padding:16px 20px;display:flex;align-items:center;gap:14px;box-shadow:0 4px 16px rgba(92,61,0,.25);}
+.year-banner{margin:10px 16px 6px;background:linear-gradient(135deg,#5C3D00,#8B6914);border-radius:12px;padding:10px 14px;display:flex;align-items:center;gap:14px;box-shadow:0 4px 16px rgba(92,61,0,.25);}
 .year-banner-text .label{font-size:11px;color:#EDD98A;letter-spacing:.1em;font-weight:700;}
-.year-banner-text .val{font-size:28px;font-weight:800;color:#FFF8E7;font-family:Georgia,serif;margin-top:2px;}
-.month-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:8px 16px;}
-.month-card{border-radius:12px;padding:14px 16px;cursor:pointer;transition:transform .1s;}
+.year-banner-text .val{font-size:20px;font-weight:800;color:#FFF8E7;font-family:Georgia,serif;margin-top:2px;}
+.month-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;padding:8px 16px;}
+.month-card{border-radius:10px;padding:7px 9px;cursor:pointer;transition:transform .1s;}
 .month-card:active{transform:scale(.97);}
 .month-card:hover{transform:translateY(-2px);}
-.month-card .m-name{font-size:12px;color:#8B6914;font-weight:700;margin-bottom:2px;}
-.month-card .m-val{font-size:20px;font-weight:800;font-family:Georgia,serif;}
-.month-card .m-days{font-size:10px;color:#A0805A;margin-top:4px;}
+.month-card .m-name{font-size:11px;color:#8B6914;font-weight:700;margin-bottom:2px;}
+.month-card .m-val{font-size:clamp(11px,3.4vw,14px);white-space:nowrap;letter-spacing:-.02em;font-weight:800;font-family:Georgia,serif;}
+.month-card .m-days{font-size:9.5px;color:#A0805A;margin-top:1px;}
 .chart-wrap{padding:14px 16px 8px;background:#FFFBF0;border-radius:12px;border:1px solid #E8D8A0;margin:12px 16px;}
 .chart-title{font-size:10px;color:#8B6914;font-weight:700;letter-spacing:.08em;margin-bottom:10px;text-transform:uppercase;}
 .bars{display:flex;align-items:flex-end;gap:3px;height:150px;}
@@ -304,20 +304,20 @@ textarea.en-in{min-height:84px;resize:none;line-height:1.5;}
       <label class="en-date-box"><span id="en-date-lbl"></span><input type="date" id="en-date" onchange="enDateLabel()"/></label>
       <button type="button" onclick="enShiftDay(1)">›</button>
     </div>
-    <label class="en-lbl">Số tiền</label>
-    <div class="en-amt-wrap"><input id="en-amt" type="text" inputmode="numeric" placeholder="0" oninput="enAmtTyped()" autocomplete="off"/><span class="unit">đ</span></div>
-    <div class="en-quick">
-      <button type="button" onclick="enAmtAdd(50000)">+50K</button><button type="button" onclick="enAmtAdd(100000)">+100K</button><button type="button" onclick="enAmtAdd(200000)">+200K</button>
-      <button type="button" onclick="enAmtAdd(500000)">+500K</button><button type="button" onclick="enAmtAdd(1000000)">+1 triệu</button><button type="button" class="k" onclick="enAmtX1000()">×1.000</button>
-      <button type="button" class="clr" onclick="enAmtClear()">Xóa số</button>
+    <label class="en-lbl">Số tiền · Loại thiện pháp</label>
+    <div class="en-row3">
+      <div class="en-amt-wrap"><input id="en-amt" type="text" inputmode="numeric" placeholder="0" oninput="enAmtTyped()" autocomplete="off"/><span class="unit">đ</span></div>
+      <button type="button" class="en-dd-btn" id="dd-amt-btn" onclick="toggleDD('amt')">💰 ▾</button>
+      <button type="button" class="en-dd-btn cat" id="dd-cat-btn" onclick="toggleDD('cat')"></button>
     </div>
-    <label class="en-lbl">Loại thiện pháp</label>
-    <div class="en-cats" id="en-cats"></div>
+    <div class="en-dd" id="dd-amt"></div>
+    <div class="en-dd" id="dd-cat"></div>
     <label class="en-lbl">Địa điểm</label>
-    <input id="en-place" class="en-in" type="text" placeholder="Chùa, tu viện..." oninput="renderPlaceChips()" autocomplete="off"/>
-    <div class="en-places" id="en-places"></div>
-    <label class="en-lbl">Ghi chú <span style="text-transform:none;font-weight:400">(không bắt buộc)</span></label>
-    <textarea id="en-note" class="en-in" placeholder="Dâng vật thực, dược phẩm..." oninput="autoGrow(this)"></textarea>
+    <div class="en-row2">
+      <input id="en-place" class="en-in" type="text" placeholder="Chùa, tu viện..." autocomplete="off"/>
+      <button type="button" class="en-dd-btn" id="dd-place-btn" onclick="toggleDD('place')">📍 ▾</button>
+    </div>
+    <div class="en-dd" id="dd-place"></div>
     <div class="en-err" id="en-err"></div>
     <div class="en-btns">
       <button type="button" class="del" id="en-del" onclick="deleteCurrentEntry()">🗑</button>
@@ -437,7 +437,7 @@ window.onerror = function(msg, src, line, col, err) {
 </style>
 <div id="settings-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:200;align-items:flex-start;justify-content:center;padding:6vh 14px 0;overflow-y:auto" onclick="if(event.target===this)closeSettingsModal()">
   <div style="background:#FFF8E7;color:#3d2a00;border-radius:16px;padding:18px;width:100%;max-width:400px;box-shadow:0 12px 40px rgba(0,0,0,.35);margin-bottom:6vh">
-    <h3 style="margin:0 0 12px;font-size:17px">⚙ Cài đặt <span style="font-size:11px;font-weight:600;color:#7A6A45">· Phiên bản v20</span></h3>
+    <h3 style="margin:0 0 12px;font-size:17px">⚙ Cài đặt <span style="font-size:11px;font-weight:600;color:#7A6A45">· Phiên bản v21</span></h3>
     <div style="border:1.5px solid #C9A54A;border-radius:12px;padding:12px;margin-bottom:10px;background:linear-gradient(180deg,rgba(255,255,255,.9) 0%,rgba(255,255,255,0) 40%),linear-gradient(180deg,#FFFDF4 0%,#F6EBC9 100%);box-shadow:0 5px 10px rgba(110,80,15,.20),0 1px 0 rgba(255,255,255,.95) inset,0 -3px 6px rgba(150,110,30,.16) inset;">
       <div style="font-weight:800;font-size:13.5px;margin-bottom:6px">☁️ Đồng bộ nhiều thiết bị</div>
       <div id="set-sync-status" style="font-size:12px;color:#7a5c1e;margin-bottom:8px"></div>
@@ -658,7 +658,7 @@ function tapDay(d){
 function updateMonthSubtitle(mk){ renderMonth(); }
 
 // ── Bảng Ghi / Sửa khoản cúng dường ──
-let _en=null, _enCat=null;
+let _en=null, _enCat=null, _enNote='', _dd=null;
 function recentPlaces(){
   const cnt={};
   Object.keys(data).sort().forEach(mk=>Object.values(data[mk]||{}).forEach(dd=>{ if(dd&&typeof dd==='object') Object.values(dd).forEach(s=>{
@@ -682,28 +682,44 @@ function openEntry(ref,preset){
   document.getElementById('en-date').value=ymdStr(y,m,d);
   document.getElementById('en-amt').value=fmtAmtDots(parseAmt(slot.amount));
   document.getElementById('en-place').value=slot.place||'';
-  document.getElementById('en-note').value=slot.note||'';
+  _enNote=slot.note||''; _dd=null;
   document.getElementById('en-del').style.display=ref?'':'none';
   document.getElementById('en-err').textContent='';
-  renderEntryCats(); renderPlaceChips(); enAmtRefresh(); enDateLabel(); autoGrow(document.getElementById('en-note'));
+  renderEntryCats(); renderDD(); enAmtRefresh(); enDateLabel();
   document.getElementById('entry-sheet').classList.add('on');
   document.body.style.overflow='hidden';
   if(!ref&&!preset.slot) setTimeout(()=>document.getElementById('en-amt').focus(),80);
 }
 function closeEntry(){ document.getElementById('entry-sheet').classList.remove('on'); document.body.style.overflow=''; _en=null; }
+// Ô xổ xuống: 'amt' = mức tiền nhanh, 'cat' = loại thiện pháp, 'place' = địa điểm hay dùng
+const QUICK_AMTS=[50000,100000,150000,200000,250000,500000,1000000];
 function renderEntryCats(){
-  document.getElementById('en-cats').innerHTML=cats.map(c=>`<button type="button" class="en-cat${_enCat===c.id?' sel':''}" onclick="pickCat('${c.id}')"><span class="ic">${c.icon}</span><span class="nm">${escTxt(c.name)}</span></button>`).join('');
+  const c=cats.find(c=>c.id===_enCat), b=document.getElementById('dd-cat-btn');
+  b.innerHTML=c?`<span class="ic">${c.icon}</span><span class="nm">${escTxt(c.name)}</span>`:'<span class="nm">Loại ▾</span>';
+  b.classList.toggle('empty',!c);
 }
-function pickCat(id){ _enCat=id; renderEntryCats(); document.getElementById('en-err').textContent=''; }
-function renderPlaceChips(){
-  const cur=document.getElementById('en-place').value.trim();
-  document.getElementById('en-places').innerHTML=recentPlaces().map(p=>`<button type="button" class="en-chip${p===cur?' sel':''}" onclick="pickPlace(this)">${escTxt(p)}</button>`).join('');
+function toggleDD(k){ _dd=_dd===k?null:k; renderDD(); }
+function renderDD(){
+  ['amt','cat','place'].forEach(k=>{
+    const el=document.getElementById('dd-'+k), on=_dd===k;
+    document.getElementById('dd-'+k+'-btn').classList.toggle('open',on);
+    el.classList.toggle('on',on);
+    if(!on){ el.innerHTML=''; return; }
+    if(k==='amt'){
+      const cur=parseAmt(document.getElementById('en-amt').value);
+      el.innerHTML=QUICK_AMTS.map(v=>`<button type="button" class="${v===cur?'sel':''}" onclick="pickAmt(${v})">${v>=1000000?(v/1000)+'K':(v/1000)+'K'}</button>`).join('');
+    }else if(k==='cat'){
+      el.innerHTML=cats.map(c=>`<button type="button" class="${c.id===_enCat?'sel':''}" onclick="pickCat('${c.id}')">${c.icon} ${escTxt(c.name)}</button>`).join('');
+    }else{
+      const cur=document.getElementById('en-place').value.trim(), ps=recentPlaces();
+      el.innerHTML=ps.length?ps.map(p=>`<button type="button" class="${p===cur?'sel':''}" onclick="pickPlace(this)">${escTxt(p)}</button>`).join(''):'<div class="none">Chưa có địa điểm nào đã ghi.</div>';
+    }
+  });
 }
-function pickPlace(btn){ document.getElementById('en-place').value=btn.textContent; renderPlaceChips(); }
+function pickAmt(v){ document.getElementById('en-amt').value=fmtAmtDots(v); _dd=null; renderDD(); enAmtRefresh(); }
+function pickCat(id){ _enCat=id; _dd=null; renderEntryCats(); renderDD(); document.getElementById('en-err').textContent=''; }
+function pickPlace(btn){ document.getElementById('en-place').value=btn.textContent; _dd=null; renderDD(); }
 function enAmtTyped(){ const i=document.getElementById('en-amt'); i.value=fmtAmtDots(parseAmt(i.value)); enAmtRefresh(); }
-function enAmtAdd(n){ const i=document.getElementById('en-amt'); i.value=fmtAmtDots(parseAmt(i.value)+n); enAmtRefresh(); }
-function enAmtX1000(){ const i=document.getElementById('en-amt'), v=parseAmt(i.value); if(v) i.value=fmtAmtDots(v*1000); enAmtRefresh(); }
-function enAmtClear(){ const i=document.getElementById('en-amt'); i.value=''; enAmtRefresh(); i.focus(); }
 function enAmtRefresh(){ document.getElementById('en-err').textContent=''; }
 function fmtAmtDots(n){ return n?Number(n).toLocaleString('vi-VN'):''; }
 function enDateLabel(){
@@ -717,15 +733,14 @@ function enShiftDay(n){
   const inp=document.getElementById('en-date'), [y,m,d]=inp.value.split('-').map(Number);
   const dt=new Date(y,m-1,d+n); inp.value=ymdStr(dt.getFullYear(),dt.getMonth(),dt.getDate()); enDateLabel();
 }
-function autoGrow(ta){ ta.style.height='auto'; ta.style.height=Math.min(Math.max(ta.scrollHeight,84),260)+'px'; }
 function saveEntry(){
   const amt=parseAmt(document.getElementById('en-amt').value);
   const err=document.getElementById('en-err');
   if(!amt){ err.textContent='Vui lòng nhập số tiền.'; document.getElementById('en-amt').focus(); return; }
-  if(!_enCat){ err.textContent='Vui lòng chọn loại thiện pháp.'; document.getElementById('en-cats').scrollIntoView({block:'nearest',behavior:'smooth'}); return; }
+  if(!_enCat){ err.textContent='Vui lòng chọn loại thiện pháp.'; _dd='cat'; renderDD(); return; }
   const dv=document.getElementById('en-date').value; if(!dv){ err.textContent='Vui lòng chọn ngày.'; return; }
   const [y,m,d]=dv.split('-').map(Number), mk=mKey(y,m-1);
-  const slot={amount:String(amt),catId:_enCat,place:document.getElementById('en-place').value.trim(),note:document.getElementById('en-note').value.trim()};
+  const slot={amount:String(amt),catId:_enCat,place:document.getElementById('en-place').value.trim(),note:_enNote};
   if(_en && _en.mk===mk && _en.d===d){
     data[mk][d][_en.i]=slot;
   }else{
