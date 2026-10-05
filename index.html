@@ -18,7 +18,7 @@
 body{font-family:-apple-system,'Segoe UI',Arial,sans-serif;background:#FFF8E7;color:#2C1A00;min-height:100vh;}
 button,input{font-family:inherit;}
 input{padding:7px 10px;border:1px solid #D4B85A;border-radius:6px;background:#FFFBF0;color:#2C1A00;font-size:13px;outline:none;width:100%;}
-.page{display:none;max-width:600px;margin:0 auto;padding-bottom:110px;}
+.page{display:none;width:100%;margin:0 auto;padding-bottom:110px;}
 .page.active{display:block;}
 #header{background:linear-gradient(135deg,#5C3D00,#8B6914 60%,#A07828);padding:16px 20px 12px;text-align:center;box-shadow:0 4px 16px rgba(92,61,0,0.3);}
 #header h1{font-size:22px;font-weight:800;color:#FFF8E7;font-family:Georgia,serif;letter-spacing:.08em;}
@@ -482,7 +482,7 @@ window.onerror = function(msg, src, line, col, err) {
 </style>
 <div id="settings-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:200;align-items:flex-start;justify-content:center;padding:6vh 14px 0;overflow-y:auto" onclick="if(event.target===this)closeSettingsModal()">
   <div style="background:#FFF8E7;color:#3d2a00;border-radius:16px;padding:18px;width:100%;max-width:400px;box-shadow:0 12px 40px rgba(0,0,0,.35);margin-bottom:6vh">
-    <h3 style="margin:0 0 12px;font-size:17px">⚙ Cài đặt <span style="font-size:11px;font-weight:600;color:#7A6A45">· Phiên bản v23</span></h3>
+    <h3 style="margin:0 0 12px;font-size:17px">⚙ Cài đặt <span style="font-size:11px;font-weight:600;color:#7A6A45">· Phiên bản v24</span></h3>
     <div style="border:1.5px solid #C9A54A;border-radius:12px;padding:12px;margin-bottom:10px;background:linear-gradient(180deg,rgba(255,255,255,.9) 0%,rgba(255,255,255,0) 40%),linear-gradient(180deg,#FFFDF4 0%,#F6EBC9 100%);box-shadow:0 5px 10px rgba(110,80,15,.20),0 1px 0 rgba(255,255,255,.95) inset,0 -3px 6px rgba(150,110,30,.16) inset;">
       <div style="font-weight:800;font-size:13.5px;margin-bottom:6px">☁️ Đồng bộ nhiều thiết bị</div>
       <div id="set-sync-status" style="font-size:12px;color:#7a5c1e;margin-bottom:8px"></div>
@@ -980,7 +980,7 @@ function renderThienChart(){
   const months=Array.from({length:12},(_,mi)=>{ const mk2=mKey(thienYear,mi); const row={}; cats.forEach(c=>{ row[c.id]=catMonthTotal(c.id,mk2); }); row._total=cats.reduce((s,c)=>s+row[c.id],0); return row; });
   const maxV=Math.max(...months.map(r=>r._total),1);
   const activeCats=cats.filter(c=>months.some(m=>m[c.id]>0));
-  const W=Math.min(window.innerWidth-32,568), H=140, padL=4, padR=4, padT=24, padB=20;
+  const W=Math.max(240,Math.round(window.innerWidth/_zoom)-64), H=140, padL=4, padR=4, padT=24, padB=20;
   const chartW=W-padL-padR, chartH=H-padT-padB, barW=Math.floor(chartW/12);
   const gap=Math.max(1,Math.floor(barW*0.15)), bw=barW-gap;
   const canvas=document.createElement('canvas');
@@ -1636,6 +1636,17 @@ function bkRestore(day){
 }
 async function requestPersist(){ try{ if(navigator.storage&&navigator.storage.persist){ await navigator.storage.persist(); } }catch(e){} }
 
+// ── Vừa khít mọi màn hình: nội dung trải hết chiều ngang, chữ/khung phóng theo bề rộng ──
+// Thiết kế gốc cho điện thoại (~420px); màn hình rộng hơn được phóng to tương ứng (tối đa 1.6 lần).
+let _zoom=1;
+function fitScreen(){
+  const z=Math.min(1.6,Math.max(1,window.innerWidth/600));
+  if(Math.abs(z-_zoom)<0.01&&document.body.style.zoom) return false;
+  _zoom=z; document.body.style.zoom=z; return true;
+}
+fitScreen();
+let _fitT=null;
+window.addEventListener('resize',()=>{ clearTimeout(_fitT); _fitT=setTimeout(()=>{ fitScreen(); if(curTab==='thien') renderThienChart(); },150); });
 load();
 cleanupData();
 (function(){
