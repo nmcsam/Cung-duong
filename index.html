@@ -20,13 +20,13 @@ button,input{font-family:inherit;}
 input{padding:7px 10px;border:1px solid #D4B85A;border-radius:6px;background:#FFFBF0;color:#2C1A00;font-size:13px;outline:none;width:100%;}
 .page{display:none;width:100%;margin:0 auto;padding-bottom:110px;}
 .page.active{display:block;}
-#header{background:linear-gradient(135deg,#5C3D00,#8B6914 60%,#A07828);padding:16px 20px 12px;text-align:center;box-shadow:0 4px 16px rgba(92,61,0,0.3);}
+#header{position:sticky;top:0;z-index:121;background:linear-gradient(135deg,#5C3D00,#8B6914 60%,#A07828);padding:16px 20px 12px;text-align:center;box-shadow:0 4px 16px rgba(92,61,0,0.3);}
 #header h1{font-size:22px;font-weight:800;color:#FFF8E7;font-family:Georgia,serif;letter-spacing:.08em;}
 #header .sub{font-size:11px;color:#EDD98A;letter-spacing:.1em;margin-top:3px;opacity:.85;}
 #grand-total{font-size:12px;color:#FFF8E7;margin-top:6px;opacity:.9;}
 #btn-reset{margin-top:8px;padding:3px 14px;background:transparent;border:1px solid rgba(255,255,255,.3);border-radius:20px;color:#EDD98A;font-size:10px;cursor:pointer;opacity:.7;}
-#tabs{display:flex;background:#5C3D00;border-bottom:2px solid #8B6914;position:sticky;top:0;z-index:120;}
-.page>.nav-row:first-child,#page-month>div:first-child{position:sticky;top:var(--tabsH,44px);z-index:110;background:#FFF8E7;box-shadow:0 3px 8px rgba(92,61,0,.10);}
+#tabs{display:flex;background:#5C3D00;border-bottom:2px solid #8B6914;position:sticky;top:var(--hdrH,0px);z-index:120;}
+
 #tabs button{flex:1;padding:11px 0;background:transparent;color:#C8A84B;border:none;cursor:pointer;font-size:12px;font-weight:700;border-bottom:2px solid transparent;margin-bottom:-2px;}
 #tabs button.active{background:linear-gradient(180deg,rgba(255,255,255,.35) 0%,rgba(255,255,255,.1) 30%,rgba(255,255,255,0) 60%),linear-gradient(180deg,#A07828 0%,#8B6914 55%,#6b4f0e 100%);color:#FFF8E7;border-bottom:2px solid #EDD98A;box-shadow:0 2px 0 rgba(255,255,255,.3) inset,0 -3px 6px rgba(40,28,3,.35) inset;text-shadow:0 1px 1px rgba(0,0,0,.3);}
 .nav-row{display:flex;align-items:center;justify-content:space-between;padding:13px 18px 10px;border-bottom:1px solid #E8D8A0;}
@@ -176,7 +176,11 @@ input{padding:7px 10px;border:1px solid #D4B85A;border-radius:6px;background:#FF
 .ms-cat.none{background:#fff;color:#B07A2A;border-style:dashed;}
 .ms-cat.open{background:#5C3D00;color:#FFF8E7;}
 .ms-rep{flex-shrink:0;width:30px;height:30px;border-radius:50%;border:1px solid #C9A94A;background:#FFF8E7;color:#8B6914;font-size:15px;font-weight:800;cursor:pointer;}
-.ms-dd{display:flex;max-height:60vh;}
+.ms-dd{display:flex;max-height:60vh;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;}
+html.lock-scroll{overflow:hidden;}
+html.lock-scroll body{touch-action:none;}
+html.lock-scroll .ms-dd{touch-action:pan-y;}
+.ms-row{scroll-margin-top:calc(var(--stickyH,0px) + 8px);}
 .ms-hint{font-size:10.5px;color:#8B6914;text-align:center;margin-top:8px;opacity:.85;}
 .ms-catbtn{width:100%;margin-top:12px;padding:10px;border:1px solid #C9A94A;border-radius:10px;background:#FFF8E7;color:#5C3D00;font-size:13px;font-weight:800;cursor:pointer;}
 .ms-catbtn.open{background:#8B6914;color:#FFF8E7;}
@@ -483,7 +487,7 @@ window.onerror = function(msg, src, line, col, err) {
 </style>
 <div id="settings-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:200;align-items:flex-start;justify-content:center;padding:6vh 14px 0;overflow-y:auto" onclick="if(event.target===this)closeSettingsModal()">
   <div style="background:#FFF8E7;color:#3d2a00;border-radius:16px;padding:18px;width:100%;max-width:400px;box-shadow:0 12px 40px rgba(0,0,0,.35);margin-bottom:6vh">
-    <h3 style="margin:0 0 12px;font-size:17px">⚙ Cài đặt <span style="font-size:11px;font-weight:600;color:#7A6A45">· Phiên bản v26</span></h3>
+    <h3 style="margin:0 0 12px;font-size:17px">⚙ Cài đặt <span style="font-size:11px;font-weight:600;color:#7A6A45">· Phiên bản v27</span></h3>
     <div style="border:1.5px solid #C9A54A;border-radius:12px;padding:12px;margin-bottom:10px;background:linear-gradient(180deg,rgba(255,255,255,.9) 0%,rgba(255,255,255,0) 40%),linear-gradient(180deg,#FFFDF4 0%,#F6EBC9 100%);box-shadow:0 5px 10px rgba(110,80,15,.20),0 1px 0 rgba(255,255,255,.95) inset,0 -3px 6px rgba(150,110,30,.16) inset;">
       <div style="font-weight:800;font-size:13.5px;margin-bottom:6px">☁️ Đồng bộ nhiều thiết bị</div>
       <div id="set-sync-status" style="font-size:12px;color:#7a5c1e;margin-bottom:8px"></div>
@@ -634,6 +638,7 @@ function catYearTotal(catId,y){ return Array.from({length:12},(_,i)=>catMonthTot
 function catAllTotal(catId){ return Object.keys(data).reduce((s,mk)=>s+catMonthTotal(catId,mk),0); }
 
 function showTab(t){
+  if(typeof _catPick!=='undefined'&&_catPick){ _catPick=null; document.documentElement.classList.remove('lock-scroll'); }
   curTab=t; saveView();
   ['month','year','thien'].forEach(x=>{
     document.getElementById('page-'+x).classList.toggle('active',x===t);
@@ -941,11 +946,21 @@ function renderMonthSummary(mk,md,tot,cnt){
     <div class="summary-alltime"><span>Tổng cộng dồn đến ${mn}</span><span>${fmtVND(gt)}</span></div>
   </div>`;
 }
-document.addEventListener('click',e=>{ if(_catPick&&document.contains(e.target)&&!e.target.closest('.ms-dd,.ms-cat')){ _catPick=null; renderMonth(); } });
-function toggleCatPick(key){ _catPick=_catPick===key?null:key; renderMonth(); }
+document.addEventListener('click',e=>{ if(_catPick&&document.contains(e.target)&&!e.target.closest('.ms-dd,.ms-cat')){ _catPick=null; renderMonth(); fitCatMenu(); } });
+function toggleCatPick(key){ _catPick=_catPick===key?null:key; renderMonth(); fitCatMenu(true); }
+// Menu chọn loại: dòng đang chọn được đưa lên ngay dưới cụm đầu, trang bị khóa, chỉ menu cuộn
+function fitCatMenu(scroll){
+  const dd=document.querySelector('.ms-dd');
+  document.documentElement.classList.toggle('lock-scroll',!!dd);
+  if(!dd) return;
+  const row=dd.closest('.ms-row');
+  if(scroll&&row){ const tb=document.getElementById('tabs').getBoundingClientRect().bottom; window.scrollBy(0,row.getBoundingClientRect().top-tb-8); }
+  const top=dd.getBoundingClientRect().top;
+  dd.style.maxHeight=Math.max(150,(window.innerHeight-top)/_zoom-14)+'px';
+}
 function setEntryCat(mk,d,i,catId){
   const slot=data[mk]&&data[mk][d]&&data[mk][d][i]; if(!slot) return;
-  slot.catId=catId; _catPick=null; saveData(); renderMonth(); renderThien();
+  slot.catId=catId; _catPick=null; saveData(); renderMonth(); fitCatMenu(); renderThien();
   const c=cats.find(c=>c.id===catId); toast('✓ Đã chuyển sang '+(c?c.icon+' '+c.name:''));
 }
 
@@ -1651,8 +1666,9 @@ function fitScreen(){
   _zoom=z; document.body.style.zoom=z; return true;
 }
 fitScreen();
-function setTabsH(){ const t=document.getElementById('tabs'); if(t) document.documentElement.style.setProperty('--tabsH',t.offsetHeight+'px'); }
+function setTabsH(){ const h=document.getElementById('header'), t=document.getElementById('tabs'); if(h) document.documentElement.style.setProperty('--hdrH',h.offsetHeight+'px'); if(h&&t) document.documentElement.style.setProperty('--stickyH',(h.offsetHeight+t.offsetHeight)+'px'); }
 setTabsH();
+try{ new ResizeObserver(setTabsH).observe(document.getElementById('header')); }catch(e){ window.addEventListener('load',setTabsH); }
 let _fitT=null;
 window.addEventListener('resize',()=>{ clearTimeout(_fitT); _fitT=setTimeout(()=>{ fitScreen(); setTabsH(); if(curTab==='thien') renderThienChart(); },150); });
 load();
