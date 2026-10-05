@@ -231,22 +231,37 @@ body.wide #cols>.page:last-child{border-right:none;}
 body.wide #cols>.page{overflow-x:hidden;container-type:inline-size;}
 /* Cột hẹp (màn hình trong điện thoại xoay ngang ~280px/cột) */
 @container (max-width:380px){
-  .nav-title h2{font-size:15px;}
-  .nav-btn{width:30px;height:30px;font-size:16px;}
-  .nav-row{padding:10px 10px 8px;}
-  .th-banner{flex-direction:column;align-items:flex-start;gap:4px;margin:10px 10px 4px;}
-  .th-banner>div:last-child{text-align:left!important;}
-  .th-banner .v{font-size:17px;}
-  .thien-cats{padding:10px 10px 0;}
-  .thien-chart,.chart-wrap{margin:10px;padding:10px 10px 6px;}
-  .year-banner{margin:10px;padding:8px 12px;}
-  .year-banner-text .val{font-size:17px;}
-  .month-grid{grid-template-columns:repeat(2,1fr);padding:6px 10px;}
-  .summary-box{margin:14px 8px 0;padding:12px;}
-  .summary-total{font-size:21px;}
-  .ms-cat{max-width:100%;}
-  .th-row .nm{font-size:13px;}
-  .th-row .am{font-size:12.5px;}
+  #cols .nav-title h2{font-size:15px;}
+  #cols .nav-btn{width:30px;height:30px;font-size:16px;}
+  #cols .nav-row{padding:10px 10px 8px;}
+  #cols .th-banner{flex-direction:column;align-items:flex-start;gap:4px;margin:10px 10px 4px;}
+  #cols .th-banner>div:last-child{text-align:left!important;}
+  #cols .th-banner .v{font-size:17px;}
+  #cols .thien-cats{padding:10px 10px 0;}
+  #cols .thien-chart,#cols .chart-wrap{margin:10px;padding:10px 10px 6px;}
+  #cols .year-banner{margin:10px;padding:8px 12px;}
+  #cols .year-banner-text .val{font-size:17px;}
+  #cols .summary-box{margin:14px 8px 0;padding:12px;}
+  #cols .summary-total{font-size:21px;}
+  #cols .ms-cat{max-width:100%;}
+  #cols .th-row .nm{font-size:13px;}
+  #cols .th-row .am{font-size:12.5px;}
+}
+/* Cột vừa (≤ 520px): dòng Tổng kết xuống 2 hàng, thẻ tháng 2 cột */
+@container (max-width:520px){
+  #cols .month-grid{grid-template-columns:repeat(2,minmax(0,1fr));padding:6px 10px;}
+  #cols .month-card{min-width:0;}
+  #cols .month-card .m-val{font-size:clamp(12px,4.2cqi,16px);overflow:hidden;text-overflow:clip;}
+  #cols .ms-main{flex:1 1 calc(100% - 46px);}
+  #cols .ms-sub{-webkit-line-clamp:3;}
+  #cols .ms-cat{margin-left:40px;max-width:calc(100% - 82px);}
+  #cols .ms-rep{margin-left:auto;}
+  #cols .ms-cs{grid-template-columns:minmax(0,1fr) auto;row-gap:3px;}
+  #cols .ms-cs .bar{grid-column:1/-1;grid-row:2;}
+  #cols .bars{gap:2px;}
+  #cols .bar-wrap{min-width:0;}
+  #cols .bar-label{font-size:6px;white-space:nowrap;}
+  #cols .th-row .nm{white-space:normal;overflow:visible;line-height:1.25;}
 }
 body.wide #cols>.page::before{content:attr(data-title);display:block;position:sticky;top:0;z-index:5;padding:7px 12px;background:#5C3D00;color:#FFF8E7;font-size:13px;font-weight:800;text-align:center;letter-spacing:.03em;}
 body.wide .page.lock{overflow:hidden!important;}
@@ -518,7 +533,7 @@ window.onerror = function(msg, src, line, col, err) {
 </style>
 <div id="settings-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:200;align-items:flex-start;justify-content:center;padding:6vh 14px 0;overflow-y:auto" onclick="if(event.target===this)closeSettingsModal()">
   <div style="background:#FFF8E7;color:#3d2a00;border-radius:16px;padding:18px;width:100%;max-width:400px;box-shadow:0 12px 40px rgba(0,0,0,.35);margin-bottom:6vh">
-    <h3 style="margin:0 0 12px;font-size:17px">⚙ Cài đặt <span style="font-size:11px;font-weight:600;color:#7A6A45">· Phiên bản v31</span></h3>
+    <h3 style="margin:0 0 12px;font-size:17px">⚙ Cài đặt <span style="font-size:11px;font-weight:600;color:#7A6A45">· Phiên bản v32</span></h3>
     <div style="border:1.5px solid #C9A54A;border-radius:12px;padding:12px;margin-bottom:10px;background:linear-gradient(180deg,rgba(255,255,255,.9) 0%,rgba(255,255,255,0) 40%),linear-gradient(180deg,#FFFDF4 0%,#F6EBC9 100%);box-shadow:0 5px 10px rgba(110,80,15,.20),0 1px 0 rgba(255,255,255,.95) inset,0 -3px 6px rgba(150,110,30,.16) inset;">
       <div style="font-weight:800;font-size:13.5px;margin-bottom:6px">☁️ Đồng bộ nhiều thiết bị</div>
       <div id="set-sync-status" style="font-size:12px;color:#7a5c1e;margin-bottom:8px"></div>
