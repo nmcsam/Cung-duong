@@ -1550,6 +1550,8 @@ function initSync(){ updateSyncBtn(); if(syncCode) setTimeout(function(){ connec
 // ===== Mật khẩu mở app (đồng bộ qua đám mây; máy đổi sau cùng được áp dụng) =====
 function getPassT(){ try{ return parseInt(localStorage.getItem('cd_pass_t')||'0',10)||0; }catch(e){ return 0; } }
 function setLocalPass(h,t){ try{ if(h) localStorage.setItem('cd_pass',h); else localStorage.removeItem('cd_pass'); localStorage.setItem('cd_pass_t',String(t||Date.now())); }catch(e){} }
+// Mật khẩu đặt từ bản cũ (chưa có thời điểm) được coi là mới hơn "chưa đặt" của máy khác
+try{ if(localStorage.getItem('cd_pass')&&!localStorage.getItem('cd_pass_t')) localStorage.setItem('cd_pass_t','1'); }catch(e){}
 // Trả về true nếu đã nhận mật khẩu mới hơn; false nếu máy này mới hơn đám mây; null nếu giống/không có
 function mergePass(rp){
   if(!rp||typeof rp!=='object') return null;
