@@ -1,44 +1,34 @@
-const CACHE_NAME = "quyen22-cache-v102";
-const ASSETS = [
-  "./",
-  "./index.html",
-  "./data.js",
-  "./citta_cetasika_data.js",
-  "./dactinh_tl_data.js",
-  "./anduc_data.js",
-  "./app.js",
-  "./app2.js",
-  "./anduc_page.js",
-  "./manifest.json",
-  "./icon-buddha3-192.png",
-  "./icon-buddha3-512.png",
-  "./home-buddha4.jpg"
-];
+// MẠNG TRƯỚC — CACHE DỰ PHÒNG:
+// Có mạng: luôn tải bản MỚI NHẤT, đồng thời lưu một bản dự phòng.
+// Mất mạng: mở app bằng bản dự phòng đã lưu lần gần nhất.
+const CACHE = 'bothi-offline-v1';
 
-self.addEventListener("install", (event) => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS))
-  );
-  self.skipWaiting();
-});
+self.addEventListener('install', () => { self.skipWaiting(); });
 
-self.addEventListener("activate", (event) => {
-  event.waitUntil(
-    caches.keys().then((keys) =>
-      Promise.all(keys.filter((k) => k !== CACHE_NAME).map((k) => caches.delete(k)))
-    ).then(() => self.clients.claim())
+self.addEventListener('activate', e => {
+  e.waitUntil(
+    caches.keys()
+      .then(keys => Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k))))
+      .then(() => self.clients.claim())
   );
 });
 
-// Network-first: always try to fetch the latest version first.
-// Falls back to cache only when offline. This avoids serving a stale
-// app shell after an update has been pushed to GitHub Pages.
-self.addEventListener("fetch", (event) => {
-  event.respondWith(
-    fetch(event.request, { cache: "no-store" }).then((response) => {
-      const copy = response.clone();
-      caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy));
-      return response;
-    }).catch(() => caches.match(event.request))
+self.addEventListener('fetch', e => {
+  if (e.request.method !== 'GET') return; // đồng bộ Firestore đi thẳng, không đụng
+  let nenLuu = false;
+  try {
+    const u = new URL(e.request.url);
+    nenLuu = u.origin === self.location.origin || u.hostname.endsWith('gstatic.com');
+  } catch (err) {}
+  e.respondWith(
+    fetch(e.request, { cache: 'no-store' })
+      .then(res => {
+        if (nenLuu && res && res.ok) {
+          const clone = res.clone();
+          caches.open(CACHE).then(c => c.put(e.request, clone)).catch(() => {});
+        }
+        return res;
+      })
+      .catch(() => caches.match(e.request).then(m => m || Response.error()))
   );
 });
