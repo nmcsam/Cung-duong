@@ -70,6 +70,25 @@ input{padding:7px 10px;border:1px solid #D4B85A;border-radius:6px;background:#FF
 #confirm-modal .cf-ok:active{background:#a31f1f;}
 @keyframes cfFade{from{opacity:0}to{opacity:1}}
 @keyframes cfPop{from{transform:scale(.92);opacity:0}to{transform:scale(1);opacity:1}}
+.tap-box.amt{font-weight:800;color:#5C3D00;}
+.tap-box.amt.empty{font-weight:400;color:#A89070;}
+#amount-editor{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:300;align-items:flex-start;justify-content:center;padding:6vh 12px 0;}
+#amount-editor.on{display:flex;}
+#amount-editor .box{background:#FFF8E7;border-radius:16px;padding:16px;width:100%;max-width:440px;box-shadow:0 12px 40px rgba(0,0,0,.35);display:flex;flex-direction:column;gap:10px;}
+#amount-editor .ttl{font-size:16px;font-weight:800;color:#5C3D00;}
+#amount-editor .inwrap{position:relative;}
+#amount-editor input{width:100%;padding:14px 48px 14px 16px;border:2px solid #D4B85A;border-radius:12px;background:#fff;color:#3d2a00;font-size:30px;font-weight:800;text-align:right;box-sizing:border-box;outline:none;font-family:inherit;}
+#amount-editor input:focus{border-color:#8B6914;}
+#amount-editor .unit{position:absolute;right:16px;top:50%;transform:translateY(-50%);font-size:20px;font-weight:800;color:#8B6914;}
+#amount-editor .words{text-align:right;font-size:13px;color:#8B6914;margin-top:-4px;}
+#amount-editor .chips{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;}
+#amount-editor .chips button{padding:10px 0;border:1px solid #D4B85A;border-radius:10px;background:#FDF0C0;color:#5C3D00;font-size:14px;font-weight:800;cursor:pointer;}
+#amount-editor .chips .k{background:#EDD98A;}
+#amount-editor .chips .clr{background:#fff;color:#c62828;border-color:#F3B8B0;}
+#amount-editor .row{display:flex;gap:8px;}
+#amount-editor .row button{flex:1;padding:12px 0;border:none;border-radius:10px;font-size:15px;font-weight:800;cursor:pointer;}
+#amount-editor .cancel{background:#EDD98A;color:#5C3D00;}
+#amount-editor .ok{background:#2e7d32;color:#fff;flex:2 !important;}
 #text-editor{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:300;align-items:flex-start;justify-content:center;padding:5vh 12px 0;}
 #text-editor.on{display:flex;}
 #text-editor .box{background:#FFF8E7;border-radius:16px;padding:16px;width:100%;max-width:560px;box-shadow:0 12px 40px rgba(0,0,0,.35);display:flex;flex-direction:column;gap:10px;}
@@ -192,6 +211,29 @@ input{padding:7px 10px;border:1px solid #D4B85A;border-radius:6px;background:#FF
     <div class="row">
       <button class="cf-cancel" id="cf-cancel">Hủy</button>
       <button class="cf-ok" id="cf-ok">Xóa</button>
+    </div>
+  </div>
+</div>
+<div id="amount-editor" onclick="if(event.target===this)closeAmountEditor()">
+  <div class="box">
+    <div class="ttl" id="ae-title">Số tiền</div>
+    <div class="inwrap">
+      <input id="ae-input" type="text" inputmode="numeric" placeholder="0" oninput="aeTyped()" onkeydown="if(event.key==='Enter')commitAmountEditor()"/>
+      <span class="unit">đ</span>
+    </div>
+    <div class="words" id="ae-words"></div>
+    <div class="chips">
+      <button onclick="aeAdd(50000)">+50K</button>
+      <button onclick="aeAdd(100000)">+100K</button>
+      <button onclick="aeAdd(200000)">+200K</button>
+      <button onclick="aeAdd(500000)">+500K</button>
+      <button onclick="aeAdd(1000000)">+1 triệu</button>
+      <button class="k" onclick="aeTimes1000()">×1.000</button>
+    </div>
+    <div class="chips" style="grid-template-columns:1fr;"><button class="clr" onclick="aeClear()">Xóa số</button></div>
+    <div class="row">
+      <button class="cancel" onclick="closeAmountEditor()">✕ Hủy</button>
+      <button class="ok" onclick="commitAmountEditor()">✓ Xong — Lưu</button>
     </div>
   </div>
 </div>
@@ -550,6 +592,33 @@ function openTextEditor(mk,day,si,field){
   document.getElementById('text-editor').classList.add('on');
   setTimeout(()=>{ta.focus();ta.setSelectionRange(ta.value.length,ta.value.length);},50);
 }
+let _ae=null;
+function openAmountEditor(mk,day,si){
+  const slot=(data[mk]&&data[mk][day]&&data[mk][day][si])||{};
+  _ae={mk,day,si};
+  document.getElementById('ae-title').textContent='💰 Số tiền — Ngày '+day+', mục '+(si+1);
+  const inp=document.getElementById('ae-input');
+  inp.value=fmtAmtDots(parseAmt(slot.amount));
+  aeRefresh();
+  document.getElementById('amount-editor').classList.add('on');
+  setTimeout(()=>{inp.focus();inp.setSelectionRange(inp.value.length,inp.value.length);},50);
+}
+function fmtAmtDots(n){ return n?Number(n).toLocaleString('vi-VN'):''; }
+function aeTyped(){ const inp=document.getElementById('ae-input'); inp.value=fmtAmtDots(parseAmt(inp.value)); aeRefresh(); }
+function aeAdd(n){ const inp=document.getElementById('ae-input'); inp.value=fmtAmtDots(parseAmt(inp.value)+n); aeRefresh(); }
+function aeTimes1000(){ const inp=document.getElementById('ae-input'); const v=parseAmt(inp.value); if(v) inp.value=fmtAmtDots(v*1000); aeRefresh(); }
+function aeClear(){ document.getElementById('ae-input').value=''; aeRefresh(); document.getElementById('ae-input').focus(); }
+function aeRefresh(){ const v=parseAmt(document.getElementById('ae-input').value); document.getElementById('ae-words').textContent=v?fmtVND(v):'Chưa nhập số tiền'; }
+function closeAmountEditor(){ document.getElementById('amount-editor').classList.remove('on'); _ae=null; }
+function commitAmountEditor(){
+  if(!_ae) return;
+  const {mk,day,si}=_ae, v=parseAmt(document.getElementById('ae-input').value);
+  updateSlot(mk,day,si,'amount',v?String(v):'');
+  const el=document.getElementById('slot-'+mk+'-'+day+'-'+si);
+  if(el) el.outerHTML=makeSlotHTML(day,mk,si,data[mk][day][si]);
+  if(typeof renderMonth==='function' && openDay===day) renderMonth();
+  closeAmountEditor(); toast('✓ Đã lưu '+(v?fmtVND(v):''));
+}
 function closeTextEditor(){ document.getElementById('text-editor').classList.remove('on'); _te=null; }
 function commitTextEditor(){
   if(!_te) return;
@@ -575,7 +644,7 @@ function makeSlotHTML(day,mk,si,slot){
     </div>
     <div class="slot-grid">
       <div><label class="lbl">Số tiền (đ)</label>
-        <input type="text" inputmode="numeric" placeholder="0" value="${fmtInput(slot.amount)}" oninput="updateSlotAmount('${mk}',${day},${si},this)" onchange="updateSlotAmount('${mk}',${day},${si},this)"/></div>
+        <div class="tap-box amt${hasAmt?'':' empty'}" onclick="openAmountEditor('${mk}',${day},${si})">${hasAmt?fmtVND(slot.amount):'Bấm để nhập'}</div></div>
       <div><label class="lbl">Địa điểm</label>
         <div class="tap-box${slot.place?'':' empty'}" id="place-${mk}-${day}-${si}" onclick="openTextEditor('${mk}',${day},${si},'place')">${slot.place?escTxt(slot.place):'Chùa, tu viện...'}</div></div>
       <div class="slot-full"><label class="lbl">Nội dung</label>
