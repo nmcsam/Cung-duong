@@ -487,7 +487,7 @@ window.onerror = function(msg, src, line, col, err) {
 </style>
 <div id="settings-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:200;align-items:flex-start;justify-content:center;padding:6vh 14px 0;overflow-y:auto" onclick="if(event.target===this)closeSettingsModal()">
   <div style="background:#FFF8E7;color:#3d2a00;border-radius:16px;padding:18px;width:100%;max-width:400px;box-shadow:0 12px 40px rgba(0,0,0,.35);margin-bottom:6vh">
-    <h3 style="margin:0 0 12px;font-size:17px">⚙ Cài đặt <span style="font-size:11px;font-weight:600;color:#7A6A45">· Phiên bản v27</span></h3>
+    <h3 style="margin:0 0 12px;font-size:17px">⚙ Cài đặt <span style="font-size:11px;font-weight:600;color:#7A6A45">· Phiên bản v28</span></h3>
     <div style="border:1.5px solid #C9A54A;border-radius:12px;padding:12px;margin-bottom:10px;background:linear-gradient(180deg,rgba(255,255,255,.9) 0%,rgba(255,255,255,0) 40%),linear-gradient(180deg,#FFFDF4 0%,#F6EBC9 100%);box-shadow:0 5px 10px rgba(110,80,15,.20),0 1px 0 rgba(255,255,255,.95) inset,0 -3px 6px rgba(150,110,30,.16) inset;">
       <div style="font-weight:800;font-size:13.5px;margin-bottom:6px">☁️ Đồng bộ nhiều thiết bị</div>
       <div id="set-sync-status" style="font-size:12px;color:#7a5c1e;margin-bottom:8px"></div>
@@ -526,7 +526,7 @@ window.onerror = function(msg, src, line, col, err) {
         <button onclick="setPassFlow()" id="pass-set-btn" style="flex:1;padding:10px;border:none;border-radius:10px;background:#5C3D00;color:#FFF8E7;font-weight:700;font-size:13px;cursor:pointer">Đặt mật khẩu</button>
         <button onclick="clearPassFlow()" id="pass-off-btn" style="flex:1;display:none;padding:10px;border:1.5px solid #C9A54A;border-radius:10px;background:transparent;color:#5C3D00;font-weight:700;font-size:13px;cursor:pointer">Tắt mật khẩu</button>
       </div>
-      <p style="font-size:11px;color:#7A6A45;margin:8px 0 0">Mật khẩu chỉ lưu trên máy này (không đồng bộ).</p>
+      <p style="font-size:11px;color:#7A6A45;margin:8px 0 0">Mật khẩu được đồng bộ qua ☁️ Đám mây: đặt/đổi/tắt ở máy nào thì các máy dùng cùng mã cũng đổi theo.</p>
     </div>
 
     <button style="width:100%;padding:11px;border:none;border-radius:10px;background:#EDD98A;color:#5C3D00;font-weight:700;font-size:14px;cursor:pointer" onclick="closeSettingsModal()">Đóng</button>
@@ -1370,7 +1370,7 @@ function initFirebase(){
   try{ if(!fbDb){ if(!firebase.apps.length)firebase.initializeApp(firebaseConfig); fbDb=firebase.firestore(); } return true; }
   catch(e){ console.error(e); return false; }
 }
-function packState(){ return JSON.stringify({data:data,cats:cats,thien:thien}); }
+function packState(){ return JSON.stringify({data:data,cats:cats,thien:thien,pass:{h:getPass(),t:getPassT()}}); }
 function dataSummary(st){
   let slots=0,months=0,marks=0;
   try{
@@ -1396,6 +1396,7 @@ function saveLocalOnly(){
 }
 function stampLocal(t){ cdUpdatedAt=t||Date.now(); try{localStorage.setItem('cd_updated_at',String(cdUpdatedAt));}catch(e){} }
 function applyRemote(remoteST, updatedAt){
+  mergePass(remoteST&&remoteST.pass);
   data=(remoteST&&remoteST.data)||{};
   cats=(remoteST&&remoteST.cats&&remoteST.cats.length)?remoteST.cats:DEFAULT_CATS;
   thien=(remoteST&&remoteST.thien)||{};
@@ -1446,6 +1447,7 @@ function connectSync(code,silent){
     }
     let remoteST=null;
     try{ remoteST=JSON.parse(doc.data().payload); }catch(e){ remoteST={data:{}}; }
+    const passChanged=mergePass(remoteST&&remoteST.pass);
     const l=dataSummary({data:data,thien:thien}), r=dataSummary(remoteST);
     if(l.count===0 && r.count>0){
       applyRemote(remoteST, doc.data().updatedAt); attachSyncListener(ref); updateSyncBtn();
@@ -1455,15 +1457,18 @@ function connectSync(code,silent){
       if(!silent){ toast('✓ Đã đẩy dữ liệu máy này lên đám mây (đám mây đang trống)'); closeSyncModal(); }
     }else if(l.count===0 && r.count===0){
       attachSyncListener(ref); updateSyncBtn();
+      if(passChanged===false) pushToCloud();
       if(!silent){ toast('✓ Đã kết nối'); closeSyncModal(); }
     }else{
       const remoteUp=doc.data().updatedAt||0, localUp=cdUpdatedAt||0;
       if(doc.data().payload===packState()){
         stampLocal(Math.max(localUp,remoteUp));
         attachSyncListener(ref); updateSyncBtn();
+        if(passChanged===false) pushToCloud();
         if(!silent){ toast('✓ Đã kết nối — dữ liệu hai bên giống nhau'); closeSyncModal(); }
       }else if(remoteUp>localUp){
         applyRemote(remoteST, remoteUp); attachSyncListener(ref); updateSyncBtn();
+        if(passChanged===false) pushToCloud();
         if(!silent){ toast('☁️ Đã nhận bản mới hơn từ đám mây'); closeSyncModal(); }
       }else if(localUp>remoteUp){
         pushToCloud(); attachSyncListener(ref); updateSyncBtn();
@@ -1487,9 +1492,10 @@ function attachSyncListener(ref){
     if(!doc.exists || pendingConflict)return;
     if(syncEcho){ syncEcho=false; return; }
     const remote=doc.data();
-    if(!remote||!remote.updatedAt||remote.updatedAt<=cdUpdatedAt)return;
     let remoteST=null;
     try{ remoteST=JSON.parse(remote.payload); }catch(e){ return; }
+    if(mergePass(remoteST&&remoteST.pass)) toast('🔒 Đã cập nhật mật khẩu từ máy khác');
+    if(!remote||!remote.updatedAt||remote.updatedAt<=cdUpdatedAt)return;
     const l=dataSummary({data:data,thien:thien}), r=dataSummary(remoteST);
     if(r.count===0 && l.count>0){
       pendingConflict={remoteST:remoteST,ref:ref};
@@ -1539,9 +1545,19 @@ function queueCloudSave(){
   clearTimeout(syncTimer);
   syncTimer=setTimeout(pushToCloud,800);
 }
-function initSync(){ updateSyncBtn(); } // Không tự động kết nối khi mở app — bấm ☁️ để đồng bộ
+function initSync(){ updateSyncBtn(); if(syncCode) setTimeout(function(){ connectSync(syncCode,true); },400); } // Đã từng kết nối -> tự kết nối lại khi mở app
 // ==== CÀI ĐẶT + SAO LƯU ĐỊNH KỲ ====
-// ===== Mật khẩu mở app (lưu cục bộ trên máy) =====
+// ===== Mật khẩu mở app (đồng bộ qua đám mây; máy đổi sau cùng được áp dụng) =====
+function getPassT(){ try{ return parseInt(localStorage.getItem('cd_pass_t')||'0',10)||0; }catch(e){ return 0; } }
+function setLocalPass(h,t){ try{ if(h) localStorage.setItem('cd_pass',h); else localStorage.removeItem('cd_pass'); localStorage.setItem('cd_pass_t',String(t||Date.now())); }catch(e){} }
+// Trả về true nếu đã nhận mật khẩu mới hơn; false nếu máy này mới hơn đám mây; null nếu giống/không có
+function mergePass(rp){
+  if(!rp||typeof rp!=='object') return null;
+  const rt=rp.t||0, lt=getPassT();
+  if(rt>lt){ setLocalPass(rp.h||'',rt); updatePassUI(); return true; }
+  if(lt>rt || (rt===lt && (rp.h||'')!==getPass())) return false;
+  return null;
+}
 function hashPass(p){let h=5381;for(let i=0;i<p.length;i++){h=((h<<5)+h+p.charCodeAt(i))|0;}return 'h'+h;}
 function getPass(){try{return localStorage.getItem('cd_pass')||'';}catch(e){return'';}}
 function setPassFlow(){
@@ -1551,15 +1567,15 @@ function setPassFlow(){
   if(!p1||p1.length<4){toast('Mật khẩu cần ít nhất 4 ký tự');return;}
   const p2=prompt('Nhập lại mật khẩu:'); if(p2===null)return;
   if(p2!==p1){toast('✗ Hai lần nhập không khớp');return;}
-  try{localStorage.setItem('cd_pass',hashPass(p1));}catch(e){}
-  toast('✓ Đã đặt mật khẩu — sẽ hỏi khi mở app'); updatePassUI();
+  setLocalPass(hashPass(p1),Date.now()); queueCloudSave();
+  toast('✓ Đã đặt mật khẩu'+(syncCode?' — đồng bộ sang các máy khác':'')); updatePassUI();
 }
 function clearPassFlow(){
   const cur=getPass(); if(!cur){toast('Chưa đặt mật khẩu');return;}
   const old=prompt('Nhập mật khẩu hiện tại để tắt:'); if(old===null)return;
   if(hashPass(old)!==cur){toast('✗ Sai mật khẩu');return;}
-  try{localStorage.removeItem('cd_pass');}catch(e){}
-  toast('✓ Đã tắt mật khẩu'); updatePassUI();
+  setLocalPass('',Date.now()); queueCloudSave();
+  toast('✓ Đã tắt mật khẩu'+(syncCode?' — đồng bộ sang các máy khác':'')); updatePassUI();
 }
 function updatePassUI(){
   const t=document.getElementById('pass-status'); if(t) t.textContent=getPass()?'Đang BẬT — app sẽ hỏi mật khẩu mỗi khi mở.':'Đang tắt — ai cũng mở được app.';
@@ -1649,6 +1665,7 @@ function bkRestore(day){
     const sn=(doc.exists&&doc.data().snapshots)||{};
     if(!sn[day]){ toast('Không tìm thấy bản sao lưu'); return; }
     let st=null; try{ st=JSON.parse(sn[day]); }catch(e){ toast('Bản sao lưu bị lỗi'); return; }
+    if(st) delete st.pass;
     applyRemote(st, Date.now());
     pushToCloud();
     toast('✓ Đã khôi phục bản sao lưu '+day);
